@@ -85,6 +85,7 @@ function love.draw()
     if currentState == "title" then
         Title.draw()
     elseif currentState == "ready" then
+        Playing.draw()
         Ready.draw()
     elseif currentState == "options" then
         Options.draw()
@@ -233,6 +234,7 @@ end
 function switchToReady(mode)
     currentGameMode = mode or "normal"
     currentState = "ready"
+    Playing.enter(fonts, highScore, currentGameMode)
     Ready.enter(fonts, currentGameMode)
 end
 

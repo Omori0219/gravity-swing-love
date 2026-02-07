@@ -1,5 +1,4 @@
 local Settings = require("settings")
-local Stars = require("systems.stars")
 
 local Ready = {}
 local fonts
@@ -14,13 +13,8 @@ function Ready.update(dt)
 end
 
 function Ready.draw()
-    -- Game background (stars)
-    love.graphics.setColor(Settings.COLORS.BLACK)
-    love.graphics.rectangle("fill", 0, 0, Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT)
-    Stars.draw()
-
-    -- Dim overlay
-    love.graphics.setColor(0, 0, 0, 0.65)
+    -- Semi-transparent overlay (game screen drawn behind by main.lua)
+    love.graphics.setColor(0, 0, 0, 0.55)
     love.graphics.rectangle("fill", 0, 0, Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT)
 
     -- Instruction panel
