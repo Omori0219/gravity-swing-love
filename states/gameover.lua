@@ -207,8 +207,8 @@ function drawResult()
         y = y + 18
 
         -- Planet icons in order
-        local iconSize = 24
-        local iconGap = 4
+        local iconSize = 60
+        local iconGap = 6
         local maxPerRow = math.floor((Settings.CANVAS_WIDTH - 100) / (iconSize + iconGap))
         local totalIcons = #destroyed
         local rows = math.ceil(totalIcons / maxPerRow)
