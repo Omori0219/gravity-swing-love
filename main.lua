@@ -89,6 +89,12 @@ function love.draw()
 end
 
 function love.keypressed(key)
+    -- Fullscreen toggle (global, works in any state)
+    if key == "f11" then
+        love.window.setFullscreen(not love.window.getFullscreen(), "desktop")
+        return
+    end
+
     if key == "escape" then
         if currentState == "ready" then
             switchToTitle()
