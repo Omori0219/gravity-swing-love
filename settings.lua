@@ -27,8 +27,8 @@ Settings.COLORS = {
 }
 
 -- Canvas
-Settings.CANVAS_WIDTH = 800
-Settings.CANVAS_HEIGHT = 600
+Settings.CANVAS_WIDTH = 1200
+Settings.CANVAS_HEIGHT = 900
 
 -- Asteroid (projectile)
 Settings.ASTEROID_LAUNCH_DELAY_MIN = 1.2       -- seconds
