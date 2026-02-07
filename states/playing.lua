@@ -171,7 +171,7 @@ function Playing.draw()
     -- HUD (not affected by screen shake)
     HUD.drawScore(score, fonts.medium)
     HUD.drawHighScore(highScore, fonts.tiny)
-    FloatingScore.draw(fonts.small)
+    FloatingScore.draw(fonts.floating)
 
     -- Timer display for timed mode
     if gameMode == "timed" then

@@ -9,7 +9,7 @@ function FloatingScore.spawn(text, x, y, color, isBonus, comboLevel)
         local bonusLevel = math.max(0, (comboLevel or 0) - 2)
         fontSize = Settings.BASE_BONUS_FONT_SIZE + bonusLevel * Settings.BONUS_FONT_SIZE_INCREMENT
     else
-        fontSize = 16
+        fontSize = 32
     end
 
     table.insert(FloatingScore.list, {
@@ -36,6 +36,7 @@ function FloatingScore.update(dt)
 end
 
 function FloatingScore.draw(font)
+    local baseFontSize = font:getHeight()
     for _, fs in ipairs(FloatingScore.list) do
         local alpha = math.max(0, fs.timer / fs.duration)
         if type(fs.color) == "table" then
@@ -44,7 +45,12 @@ function FloatingScore.draw(font)
             love.graphics.setColor(1, 1, 1, alpha)
         end
         love.graphics.setFont(font)
-        love.graphics.print(fs.text, fs.x - 10, fs.y - 10)
+        local scale = fs.fontSize / baseFontSize
+        love.graphics.push()
+        love.graphics.translate(fs.x, fs.y)
+        love.graphics.scale(scale, scale)
+        love.graphics.print(fs.text, -10, -10)
+        love.graphics.pop()
     end
     love.graphics.setColor(1, 1, 1, 1)
 end

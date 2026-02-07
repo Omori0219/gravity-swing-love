@@ -85,6 +85,7 @@ Settings.STARS_COUNT = 100
 
 -- Floating score
 Settings.FLOATING_SCORE_DURATION = 1.0        -- seconds
+Settings.FLOATING_SCORE_FONT_SIZE = 20
 
 -- Asteroid appearance levels (combo-based color changes)
 Settings.ASTEROID_APPEARANCE = {
