@@ -33,8 +33,8 @@ function Playing.enter(f, hs, mode)
     highScore = hs
     consecutiveHits = 0
     maxConsecutiveHits = 0
-    canLaunch = true
-    launchDelayTimer = 0
+    canLaunch = false
+    launchDelayTimer = 1.0
     gameStartTime = love.timer.getTime()
     gameOver = false
 
