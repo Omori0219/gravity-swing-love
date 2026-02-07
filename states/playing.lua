@@ -86,7 +86,8 @@ function Playing.update(dt)
     -- Auto-launch
     if not asteroid and canLaunch then
         asteroid = Asteroid.new()
-        consecutiveHits = math.random(Settings.ASTEROID_INITIAL_COMBO_MIN, Settings.ASTEROID_INITIAL_COMBO_MAX)
+        local range = Settings.ASTEROID_INITIAL_COMBO_MAX - Settings.ASTEROID_INITIAL_COMBO_MIN
+        consecutiveHits = Settings.ASTEROID_INITIAL_COMBO_MIN + math.floor(math.random() ^ Settings.ASTEROID_INITIAL_COMBO_BIAS * (range + 1))
     end
 
     if not asteroid then return end

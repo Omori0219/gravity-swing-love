@@ -41,6 +41,7 @@ Settings.ASTEROID_TRAIL_LENGTH = 33
 Settings.ASTEROID_BOUNDARY_BUFFER = 80
 Settings.ASTEROID_INITIAL_COMBO_MIN = 0
 Settings.ASTEROID_INITIAL_COMBO_MAX = 8
+Settings.ASTEROID_INITIAL_COMBO_BIAS = 2.0    -- higher = more likely to be low
 
 -- Planet (player-controlled gravity source)
 Settings.PLANET_RADIUS = 10
