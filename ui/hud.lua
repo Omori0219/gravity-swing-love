@@ -40,6 +40,23 @@ function HUD.drawTimer(timeRemaining, fonts)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
+function HUD.drawKillFeed(destroyedPlanets, font)
+    local maxVisible = Settings.KILL_FEED_MAX_VISIBLE
+    local lineHeight = Settings.KILL_FEED_LINE_HEIGHT
+    local x = Settings.KILL_FEED_X
+    local y = Settings.KILL_FEED_Y
+    local total = #destroyedPlanets
+
+    love.graphics.setFont(font)
+    for i = 1, math.min(total, maxVisible) do
+        local p = destroyedPlanets[total - i + 1]  -- newest first
+        local alpha = 1 - (i - 1) / maxVisible
+        love.graphics.setColor(0.8, 0.8, 0.8, alpha)
+        love.graphics.print(p.name or "???", x, y + (i - 1) * lineHeight)
+    end
+    love.graphics.setColor(1, 1, 1, 1)
+end
+
 function HUD.drawMuteIndicator(font)
     love.graphics.setFont(font)
     love.graphics.setColor(1, 1, 1, 0.4)

@@ -188,6 +188,9 @@ function Playing.draw()
     HUD.drawHighScore(highScore, fonts.tiny)
     FloatingScore.draw(fonts.floating)
 
+    -- Kill feed
+    HUD.drawKillFeed(destroyedPlanets, fonts.killFeed)
+
     -- Timer display for timed mode
     if gameMode == "timed" then
         HUD.drawTimer(timeRemaining, fonts)

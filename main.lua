@@ -35,6 +35,7 @@ function love.load()
     fonts.title = love.graphics.newFont(fontPath, 28)
     fonts.timer = love.graphics.newFont(fontPath, 48)
     fonts.floating = love.graphics.newFont(fontPath, Settings.FLOATING_SCORE_FONT_SIZE)
+    fonts.killFeed = love.graphics.newFont(fontPath, Settings.KILL_FEED_FONT_SIZE)
 
     -- Initialize systems
     Stars.generate()
