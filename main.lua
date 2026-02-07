@@ -12,9 +12,10 @@ local Playing = require("states.playing")
 local Paused = require("states.paused")
 local GameOver = require("states.gameover")
 local Options = require("states.options")
+local Ready = require("states.ready")
 
 -- Game state
-local currentState = "title"   -- "title", "playing", "paused", "gameover", "options"
+local currentState = "title"   -- "title", "ready", "playing", "paused", "gameover", "options"
 local highScore = 0
 local currentGameMode = "normal"  -- "normal" or "timed"
 local fonts = {}
@@ -47,6 +48,8 @@ function love.update(dt)
 
     if currentState == "title" then
         Title.update(dt)
+    elseif currentState == "ready" then
+        Ready.update(dt)
     elseif currentState == "options" then
         Options.update(dt)
     elseif currentState == "playing" then
@@ -70,6 +73,8 @@ function love.draw()
 
     if currentState == "title" then
         Title.draw(highScore)
+    elseif currentState == "ready" then
+        Ready.draw()
     elseif currentState == "options" then
         Options.draw()
     elseif currentState == "playing" then
@@ -85,7 +90,10 @@ end
 
 function love.keypressed(key)
     if key == "escape" then
-        if currentState == "options" then
+        if currentState == "ready" then
+            switchToTitle()
+            return
+        elseif currentState == "options" then
             Audio.saveVolumes()
             switchToTitle()
             return
@@ -104,7 +112,12 @@ function love.keypressed(key)
     if currentState == "title" then
         local action = Title.keypressed(key)
         if action == "play" then
-            switchToPlaying("normal")
+            switchToReady("normal")
+        end
+    elseif currentState == "ready" then
+        local action = Ready.keypressed(key)
+        if action == "start" then
+            switchToPlaying(currentGameMode)
         end
     elseif currentState == "options" then
         local action = Options.keypressed(key)
@@ -147,11 +160,16 @@ function love.mousepressed(x, y, button)
     if currentState == "title" then
         local action = Title.mousepressed(x, y, button)
         if action == "play" then
-            switchToPlaying("normal")
+            switchToReady("normal")
         elseif action == "play_timed" then
-            switchToPlaying("timed")
+            switchToReady("timed")
         elseif action == "options" then
             switchToOptions()
+        end
+    elseif currentState == "ready" then
+        local action = Ready.mousepressed(x, y, button)
+        if action == "start" then
+            switchToPlaying(currentGameMode)
         end
     elseif currentState == "options" then
         local action = Options.mousepressed(x, y, button)
@@ -180,6 +198,12 @@ end
 function switchToOptions()
     currentState = "options"
     Options.enter(fonts)
+end
+
+function switchToReady(mode)
+    currentGameMode = mode or "normal"
+    currentState = "ready"
+    Ready.enter(fonts, currentGameMode)
 end
 
 function switchToPlaying(mode)
