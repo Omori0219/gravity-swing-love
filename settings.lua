@@ -34,7 +34,7 @@ Settings.CANVAS_HEIGHT = 600
 Settings.ASTEROID_LAUNCH_DELAY = 1.2          -- seconds
 Settings.ASTEROID_INITIAL_VX = 3.5
 Settings.ASTEROID_RADIUS = 10
-Settings.ASTEROID_TRAIL_LENGTH = 25
+Settings.ASTEROID_TRAIL_LENGTH = 33
 Settings.ASTEROID_BOUNDARY_BUFFER = 80
 
 -- Planet (player-controlled gravity source)

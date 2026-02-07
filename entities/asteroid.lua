@@ -72,7 +72,7 @@ function Asteroid.draw(asteroid, comboLevel)
         local g = mainColor[2] or 1
         local b = mainColor[3] or 1
         love.graphics.setColor(r, g, b, 0.5)
-        love.graphics.setLineWidth(asteroid.radius * 0.8)
+        love.graphics.setLineWidth(asteroid.radius * 0.56)
         local points = {}
         for _, p in ipairs(asteroid.trail) do
             table.insert(points, p.x)
