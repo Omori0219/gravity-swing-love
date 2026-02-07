@@ -2,6 +2,7 @@ local Ranking = {}
 
 local RANKING_FILE = "ranking.dat"
 local MAX_ENTRIES = 10
+local MIN_QUALIFY_SCORE = 100
 
 local list = {}
 
@@ -32,7 +33,7 @@ function Ranking.save()
 end
 
 function Ranking.isQualified(score)
-    if score < 10 then return false end
+    if score < MIN_QUALIFY_SCORE then return false end
     if #list < MAX_ENTRIES then return true end
     return score > list[#list].score
 end
