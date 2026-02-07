@@ -89,6 +89,11 @@ function love.draw()
 end
 
 function love.keypressed(key)
+    if key == "f5" then
+        love.event.quit("restart")
+        return
+    end
+
     if key == "escape" then
         if currentState == "ready" then
             switchToTitle()

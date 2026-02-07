@@ -7,7 +7,7 @@ function HUD.drawScore(score, font)
     love.graphics.setColor(Settings.COLORS.WHITE)
     local text = "Score: " .. score
     local tw = font:getWidth(text)
-    love.graphics.print(text, (Settings.CANVAS_WIDTH - tw) / 2, 10)
+    love.graphics.print(text, (Settings.CANVAS_WIDTH - tw) / 2, 32)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
@@ -16,7 +16,7 @@ function HUD.drawHighScore(highScore, font)
     love.graphics.setColor(0.667, 0.667, 0.667, 1)
     local text = "High Score: " .. highScore
     local tw = font:getWidth(text)
-    love.graphics.print(text, (Settings.CANVAS_WIDTH - tw) / 2, 32)
+    love.graphics.print(text, (Settings.CANVAS_WIDTH - tw) / 2, 10)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
