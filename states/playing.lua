@@ -36,7 +36,7 @@ function Playing.enter(f, hs, mode)
     maxConsecutiveHits = 0
     destroyedPlanets = {}
     canLaunch = false
-    launchDelayTimer = 1.0
+    launchDelayTimer = Settings.ASTEROID_FIRST_LAUNCH_DELAY
     gameStartTime = love.timer.getTime()
     gameOver = false
 

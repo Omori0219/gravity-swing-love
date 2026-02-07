@@ -42,8 +42,9 @@ local BASE_MAX_GRAVITY_FORCE = 1.5
 -- NOTE: Settings.PLANET_MASS / MAX_GRAVITY_FORCE are auto-scaled from these. Don't edit those directly.
 
 -- Asteroid (projectile)
-Settings.ASTEROID_LAUNCH_DELAY_MIN = 1.2       -- seconds
-Settings.ASTEROID_LAUNCH_DELAY_MAX = 2.5       -- seconds
+Settings.ASTEROID_FIRST_LAUNCH_DELAY = 3.2     -- seconds (first shot)
+Settings.ASTEROID_LAUNCH_DELAY_MIN = 1.8       -- seconds
+Settings.ASTEROID_LAUNCH_DELAY_MAX = 4.5       -- seconds
 Settings.ASTEROID_INITIAL_VX = 4.5
 Settings.ASTEROID_SPEED_MIN = 1.0
 Settings.ASTEROID_SPEED_MAX = 3.0
