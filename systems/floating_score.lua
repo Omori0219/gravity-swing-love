@@ -4,7 +4,7 @@ local FloatingScore = {}
 FloatingScore.list = {}
 
 function FloatingScore.spawn(text, x, y, color, isBonus, comboLevel)
-    local fontSize = Settings.FLOATING_SCORE_DURATION
+    local fontSize
     if isBonus then
         local bonusLevel = math.max(0, (comboLevel or 0) - 2)
         fontSize = Settings.BASE_BONUS_FONT_SIZE + bonusLevel * Settings.BONUS_FONT_SIZE_INCREMENT

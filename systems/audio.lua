@@ -96,7 +96,9 @@ function Audio.init()
     local volumes = Save.readVolumes()
     Audio.bgmVolume = volumes.bgm
     Audio.sfxVolume = volumes.sfx
-    Audio.bgm:setVolume(Audio.bgmVolume)
+    if Audio.bgm then
+        Audio.bgm:setVolume(Audio.bgmVolume)
+    end
 
     Audio.initialized = true
 end
