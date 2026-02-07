@@ -77,9 +77,9 @@ Settings.BASE_FPS = 60
 Settings.PHYSICS_TIME_SCALE = 1.0
 
 -- Particles
-Settings.PARTICLE_COUNT_HIT = 15
-Settings.PARTICLE_COUNT_GAMEOVER = 30
-Settings.PARTICLE_GRAVITY = 0.05
+Settings.PARTICLE_COUNT_HIT = 100
+Settings.PARTICLE_COUNT_GAMEOVER = 300
+Settings.PARTICLE_GRAVITY = 0
 
 -- Visual effects
 Settings.BASE_BONUS_FONT_SIZE = 24
