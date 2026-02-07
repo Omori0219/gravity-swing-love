@@ -8,7 +8,8 @@ end
 
 function Save.readHighScore()
     if love.filesystem.getInfo(Settings.HIGH_SCORE_FILE) then
-        return tonumber(love.filesystem.read(Settings.HIGH_SCORE_FILE)) or 0
+        local data = love.filesystem.read(Settings.HIGH_SCORE_FILE)
+        return tonumber(data) or 0
     end
     return 0
 end
