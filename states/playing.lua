@@ -92,6 +92,15 @@ function Playing.update(dt)
 
     if not asteroid then return end
 
+    -- Dying: drain trail then remove
+    if asteroid.dying then
+        Asteroid.updateTrail(asteroid)
+        if Asteroid.isTrailGone(asteroid) then
+            asteroid = nil
+        end
+        return
+    end
+
     -- Physics
     Physics.applyGravity(asteroid, planet, dt)
     Asteroid.updateTrail(asteroid)
@@ -140,9 +149,9 @@ function Playing.update(dt)
         end
     end
 
-    -- Out of bounds
+    -- Out of bounds: start dying (trail drains out) and begin next launch timer
     if Asteroid.isOutOfBounds(asteroid) then
-        asteroid = nil
+        asteroid.dying = true
         canLaunch = false
         launchDelayTimer = Settings.ASTEROID_LAUNCH_DELAY_MIN + math.random() * (Settings.ASTEROID_LAUNCH_DELAY_MAX - Settings.ASTEROID_LAUNCH_DELAY_MIN)
     end

@@ -54,10 +54,18 @@ function Asteroid.new()
 end
 
 function Asteroid.updateTrail(asteroid)
-    table.insert(asteroid.trail, {x = asteroid.x, y = asteroid.y})
-    if #asteroid.trail > Settings.ASTEROID_TRAIL_LENGTH then
+    if asteroid.dying then
         table.remove(asteroid.trail, 1)
+    else
+        table.insert(asteroid.trail, {x = asteroid.x, y = asteroid.y})
+        if #asteroid.trail > Settings.ASTEROID_TRAIL_LENGTH then
+            table.remove(asteroid.trail, 1)
+        end
     end
+end
+
+function Asteroid.isTrailGone(asteroid)
+    return asteroid.dying and #asteroid.trail == 0
 end
 
 function Asteroid.isOutOfBounds(asteroid)
@@ -82,28 +90,32 @@ function Asteroid.draw(asteroid, comboLevel)
 
     if appearance.type == "solid" then
         mainColor = appearance.color
-        love.graphics.setColor(mainColor)
-        love.graphics.circle("fill", asteroid.x, asteroid.y, asteroid.radius)
     elseif appearance.type == "gradient" then
-        -- Simulate radial gradient with concentric circles
-        local colors = appearance.colors
-        local steps = 8
-        for i = steps, 1, -1 do
-            local t = i / steps
-            -- Interpolate between colors
-            local colorIdx = t * (#colors - 1) + 1
-            local ci = math.floor(colorIdx)
-            local cf = colorIdx - ci
-            local c1 = colors[math.min(ci, #colors)]
-            local c2 = colors[math.min(ci + 1, #colors)]
-            love.graphics.setColor(
-                c1[1] + (c2[1] - c1[1]) * cf,
-                c1[2] + (c2[2] - c1[2]) * cf,
-                c1[3] + (c2[3] - c1[3]) * cf
-            )
-            love.graphics.circle("fill", asteroid.x, asteroid.y, asteroid.radius * t)
+        mainColor = appearance.colors[1]
+    end
+
+    if not asteroid.dying then
+        if appearance.type == "solid" then
+            love.graphics.setColor(mainColor)
+            love.graphics.circle("fill", asteroid.x, asteroid.y, asteroid.radius)
+        elseif appearance.type == "gradient" then
+            local colors = appearance.colors
+            local steps = 8
+            for i = steps, 1, -1 do
+                local t = i / steps
+                local colorIdx = t * (#colors - 1) + 1
+                local ci = math.floor(colorIdx)
+                local cf = colorIdx - ci
+                local c1 = colors[math.min(ci, #colors)]
+                local c2 = colors[math.min(ci + 1, #colors)]
+                love.graphics.setColor(
+                    c1[1] + (c2[1] - c1[1]) * cf,
+                    c1[2] + (c2[2] - c1[2]) * cf,
+                    c1[3] + (c2[3] - c1[3]) * cf
+                )
+                love.graphics.circle("fill", asteroid.x, asteroid.y, asteroid.radius * t)
+            end
         end
-        mainColor = colors[1]
     end
 
     -- Trail
