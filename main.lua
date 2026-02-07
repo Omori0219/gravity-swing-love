@@ -182,6 +182,8 @@ function love.mousepressed(x, y, button)
         local action = GameOver.mousepressed(x, y, button)
         if action == "play" then
             switchToPlaying(currentGameMode)
+        elseif action == "title" then
+            switchToTitle()
         end
     end
 end

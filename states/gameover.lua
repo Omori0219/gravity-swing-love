@@ -5,6 +5,7 @@ local HUD = require("ui.hud")
 local GameOver = {}
 
 local playAgainBtn
+local titleBtn
 local fonts
 local scoreData = {}
 
@@ -14,12 +15,14 @@ function GameOver.enter(f, data)
 
     local bw, bh = 240, 44
     local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
-    playAgainBtn = Button.new("Play Again", cx, 420, bw, bh, Settings.COLORS.GREEN, fonts.medium)
+    playAgainBtn = Button.new("Play Again", cx, 410, bw, bh, Settings.COLORS.GREEN, fonts.medium)
+    titleBtn = Button.new("Title", cx, 465, bw, bh, Settings.COLORS.GRAY, fonts.medium)
 end
 
 function GameOver.update(dt)
     local mx, my = love.mouse.getPosition()
     playAgainBtn:updateHover(mx, my)
+    titleBtn:updateHover(mx, my)
 end
 
 function GameOver.draw()
@@ -84,15 +87,20 @@ function GameOver.draw()
     local hw = fonts.small:getWidth(hsText)
     love.graphics.print(hsText, (Settings.CANVAS_WIDTH - hw) / 2, 375)
 
-    -- Play Again button
+    -- Buttons
     playAgainBtn:draw()
+    titleBtn:draw()
 
     love.graphics.setColor(1, 1, 1, 1)
 end
 
 function GameOver.mousepressed(x, y, button)
-    if button == 1 and playAgainBtn:isClicked(x, y) then
-        return "play"
+    if button == 1 then
+        if playAgainBtn:isClicked(x, y) then
+            return "play"
+        elseif titleBtn:isClicked(x, y) then
+            return "title"
+        end
     end
     return nil
 end
