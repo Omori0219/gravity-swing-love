@@ -46,7 +46,7 @@ Settings.PLANET_MASS = 8000
 Settings.PLANET_SUCK_IN_RADIUS = 8
 
 -- Enemies
-Settings.NUM_ENEMIES = 3
+Settings.NUM_ENEMIES =7
 Settings.ENEMY_RADIUS = 20
 Settings.ENEMY_SPAWN_MARGIN_X = 50
 Settings.ENEMY_SPAWN_MARGIN_Y = 30
