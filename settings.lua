@@ -38,7 +38,7 @@ Settings.ASTEROID_TRAIL_LENGTH = 25
 Settings.ASTEROID_BOUNDARY_BUFFER = 80
 
 -- Planet (player-controlled gravity source)
-Settings.PLANET_RADIUS = 20
+Settings.PLANET_RADIUS = 10
 Settings.PLANET_MASS = 8000
 Settings.PLANET_SUCK_IN_RADIUS = 8
 
