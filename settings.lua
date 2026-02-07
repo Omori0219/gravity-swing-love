@@ -30,6 +30,17 @@ Settings.COLORS = {
 Settings.CANVAS_WIDTH = 1200
 Settings.CANVAS_HEIGHT = 900
 
+-- Base canvas size (tuned at 800x600)
+Settings.BASE_CANVAS_WIDTH = 800
+Settings.BASE_CANVAS_HEIGHT = 600
+
+local scale = Settings.CANVAS_WIDTH / Settings.BASE_CANVAS_WIDTH
+
+-- Gameplay tuning knobs (edit these to adjust gravity feel)
+local BASE_PLANET_MASS = 8000
+local BASE_MAX_GRAVITY_FORCE = 2.0
+-- NOTE: Settings.PLANET_MASS / MAX_GRAVITY_FORCE are auto-scaled from these. Don't edit those directly.
+
 -- Asteroid (projectile)
 Settings.ASTEROID_LAUNCH_DELAY_MIN = 1.2       -- seconds
 Settings.ASTEROID_LAUNCH_DELAY_MAX = 2.5       -- seconds
@@ -45,7 +56,7 @@ Settings.ASTEROID_INITIAL_COMBO_BIAS = 2.0    -- higher = more likely to be low
 
 -- Planet (player-controlled gravity source)
 Settings.PLANET_RADIUS = 10
-Settings.PLANET_MASS = 8000
+Settings.PLANET_MASS = BASE_PLANET_MASS * scale * scale
 Settings.PLANET_SUCK_IN_RADIUS = 8
 
 -- Enemies
@@ -58,7 +69,7 @@ Settings.ENEMY_SPAWN_MAX_ATTEMPTS = 50
 
 -- Physics
 Settings.GRAVITY_CONSTANT = 0.1
-Settings.MAX_GRAVITY_FORCE = 2.0
+Settings.MAX_GRAVITY_FORCE = BASE_MAX_GRAVITY_FORCE * scale
 Settings.BASE_FPS = 60
 Settings.PHYSICS_TIME_SCALE = 1.0
 
