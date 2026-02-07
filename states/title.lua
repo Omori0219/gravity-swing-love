@@ -14,7 +14,7 @@ function Title.enter(f, ranking)
     local bw, bh = 240, 44
     local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
     startBtn = Button.new("Start", cx, 380, bw, bh, Settings.COLORS.GREEN, fonts.medium)
-    timedBtn = Button.new("60s Mode", cx, 435, bw, bh, {0.9, 0.55, 0.1}, fonts.medium)
+    timedBtn = Button.new("120s Mode", cx, 435, bw, bh, {0.9, 0.55, 0.1}, fonts.medium)
     optionsBtn = Button.new("Options", cx, 500, bw, 36, Settings.COLORS.BLUE, fonts.small)
 end
 

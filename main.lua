@@ -275,7 +275,7 @@ function switchToGameOver()
     local header
     if Playing.isTimeUp() then
         header = "TIME UP!"
-        reason = "Final score in 60 seconds"
+        reason = "Final score in 120 seconds"
     else
         header = "GAME OVER!"
         reason = "The earth destroyed."

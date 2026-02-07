@@ -20,9 +20,9 @@ local fonts
 
 -- Timed mode
 local gameMode          -- "normal" or "timed"
-local timeRemaining     -- seconds left (60s mode)
+local timeRemaining     -- seconds left (120s mode)
 local timeUp            -- true when timer expired
-local TIMED_DURATION = 60
+local TIMED_DURATION = 120
 
 function Playing.enter(f, hs, mode)
     fonts = f
