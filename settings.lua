@@ -82,7 +82,7 @@ Settings.FLOATING_SCORE_DURATION = 1.0        -- seconds
 
 -- Asteroid appearance levels (combo-based color changes)
 Settings.ASTEROID_APPEARANCE = {
-    { type = "solid", color = {0.627, 0.322, 0.176} },       -- combo 0: brown #a0522d
+    { type = "solid", color = {1, 1, 1} },                    -- combo 0: white
     { type = "solid", color = {0.529, 0.808, 0.980} },       -- combo 1: sky blue #87CEFA
     { type = "solid", color = {1, 0.843, 0} },               -- combo 2: gold #FFD700
     { type = "solid", color = {1, 0.647, 0} },               -- combo 3: orange #FFA500

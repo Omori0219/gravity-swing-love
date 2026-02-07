@@ -2,12 +2,45 @@ local Settings = require("settings")
 
 local Asteroid = {}
 
-function Asteroid.new(cannon)
+function Asteroid.new()
+    local W = Settings.CANVAS_WIDTH
+    local H = Settings.CANVAS_HEIGHT
+    local buf = Settings.ASTEROID_RADIUS + 5
+
+    -- Pick a random edge: 1=top, 2=bottom, 3=left, 4=right
+    local edge = math.random(1, 4)
+    local x, y
+
+    if edge == 1 then      -- top
+        x = math.random() * W
+        y = -buf
+    elseif edge == 2 then  -- bottom
+        x = math.random() * W
+        y = H + buf
+    elseif edge == 3 then  -- left
+        x = -buf
+        y = math.random() * H
+    else                   -- right
+        x = W + buf
+        y = math.random() * H
+    end
+
+    -- Aim toward center area with some spread
+    local cx = W / 2 + (math.random() - 0.5) * W * 0.4
+    local cy = H / 2 + (math.random() - 0.5) * H * 0.4
+    local angle = math.atan2(cy - y, cx - x)
+    -- Add some angular spread (±30 degrees)
+    angle = angle + (math.random() - 0.5) * math.rad(60)
+
+    -- Speed: base * random(1.0 ~ 2.0)
+    local speedMultiplier = 1.0 + math.random()
+    local speed = Settings.ASTEROID_INITIAL_VX * speedMultiplier
+
     return {
-        x = cannon.x + cannon.width / 2 + Settings.CANNON_BARREL_LENGTH,
-        y = cannon.y,
-        vx = Settings.ASTEROID_INITIAL_VX,
-        vy = (math.random() - 0.5) * 0.5,
+        x = x,
+        y = y,
+        vx = math.cos(angle) * speed,
+        vy = math.sin(angle) * speed,
         radius = Settings.ASTEROID_RADIUS,
         trail = {},
     }

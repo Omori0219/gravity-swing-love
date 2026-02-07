@@ -1,6 +1,5 @@
 local Settings = require("settings")
 local Planet = require("entities.planet")
-local Cannon = require("entities.cannon")
 local Asteroid = require("entities.asteroid")
 local Enemy = require("entities.enemy")
 local Physics = require("systems.physics")
@@ -13,7 +12,7 @@ local HUD = require("ui.hud")
 
 local Playing = {}
 
-local planet, cannon, asteroid, enemies
+local planet, asteroid, enemies
 local score, highScore, consecutiveHits, maxConsecutiveHits
 local canLaunch, launchDelayTimer
 local gameStartTime, gameOver
@@ -28,7 +27,6 @@ local TIMED_DURATION = 60
 function Playing.enter(f, hs, mode)
     fonts = f
     planet = Planet.new()
-    cannon = Cannon.new()
     asteroid = nil
     enemies = Enemy.initializeAll(planet)
     score = 0
@@ -87,7 +85,7 @@ function Playing.update(dt)
 
     -- Auto-launch
     if not asteroid and canLaunch then
-        asteroid = Asteroid.new(cannon)
+        asteroid = Asteroid.new()
     end
 
     if not asteroid then return end
@@ -160,7 +158,6 @@ function Playing.draw()
 
     Stars.draw()
 
-    Cannon.draw(cannon)
     Planet.draw(planet)
     Enemy.drawAll(enemies)
     if asteroid then

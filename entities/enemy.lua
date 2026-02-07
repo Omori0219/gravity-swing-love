@@ -5,8 +5,8 @@ local Enemy = {}
 
 function Enemy.createOne(existingEnemies, planet)
     local r = Settings.ENEMY_RADIUS
-    local minX = Settings.CANVAS_WIDTH / 2 + Settings.ENEMY_SPAWN_MARGIN_X
-    local maxX = Settings.CANVAS_WIDTH - r - Settings.ENEMY_SPAWN_MARGIN_Y
+    local minX = r + Settings.ENEMY_SPAWN_MARGIN_X
+    local maxX = Settings.CANVAS_WIDTH - r - Settings.ENEMY_SPAWN_MARGIN_X
     local minY = r + Settings.ENEMY_SPAWN_MARGIN_Y
     local maxY = Settings.CANVAS_HEIGHT - r - Settings.ENEMY_SPAWN_MARGIN_Y
 
