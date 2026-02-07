@@ -190,6 +190,7 @@ end
 
 function switchToTitle()
     currentState = "title"
+    love.mouse.setVisible(true)
     Audio.stopBGM()
     Particles.clear()
     Title.enter(fonts)
@@ -209,18 +210,21 @@ end
 function switchToPlaying(mode)
     currentGameMode = mode or "normal"
     currentState = "playing"
+    love.mouse.setVisible(false)
     Audio.init()
     Playing.enter(fonts, highScore, currentGameMode)
 end
 
 function switchToPaused()
     currentState = "paused"
+    love.mouse.setVisible(true)
     Audio.stopBGM()
     Paused.enter(fonts)
 end
 
 function switchToResume()
     currentState = "playing"
+    love.mouse.setVisible(false)
     Audio.playBGM()
 end
 
@@ -244,6 +248,7 @@ function switchToGameOver()
     end
 
     currentState = "gameover"
+    love.mouse.setVisible(true)
     GameOver.enter(fonts, {
         score = finalScore,
         highScore = highScore,
