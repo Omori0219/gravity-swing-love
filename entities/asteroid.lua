@@ -2,13 +2,20 @@ local Settings = require("settings")
 
 local Asteroid = {}
 
+local lastEdge = 0
+
 function Asteroid.new()
     local W = Settings.CANVAS_WIDTH
     local H = Settings.CANVAS_HEIGHT
     local buf = Settings.ASTEROID_RADIUS + 5
 
-    -- Pick a random edge: 1=top, 2=bottom, 3=left, 4=right
-    local edge = math.random(1, 4)
+    -- Pick a random edge, avoiding the same edge as last time
+    local edge
+    repeat
+        edge = math.random(1, 4)
+    until edge ~= lastEdge
+    lastEdge = edge
+
     local x, y
 
     if edge == 1 then      -- top
