@@ -1,6 +1,7 @@
 local Settings = require("settings")
 local Stars = require("systems.stars")
 local Audio = require("systems.audio")
+local Planet = require("entities.planet")
 local Enemy = require("entities.enemy")
 local Save = require("lib.save")
 local Ranking = require("lib.ranking")
@@ -40,6 +41,7 @@ function love.load()
     -- Initialize systems
     Stars.generate()
     Audio.init()
+    Planet.loadImage()
     Enemy.loadImage()
     Ranking.load()
 
