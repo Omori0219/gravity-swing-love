@@ -1,6 +1,7 @@
 local Settings = require("settings")
 local Stars = require("systems.stars")
 local Audio = require("systems.audio")
+local Enemy = require("entities.enemy")
 local Save = require("lib.save")
 local Ranking = require("lib.ranking")
 local Particles = require("systems.particles")
@@ -38,6 +39,7 @@ function love.load()
     -- Initialize systems
     Stars.generate()
     Audio.init()
+    Enemy.loadImage()
     Ranking.load()
 
     -- Migrate: seed ranking from old high score if ranking is empty

@@ -69,6 +69,9 @@ function Playing.update(dt)
     local mx, my = love.mouse.getPosition()
     Planet.updatePosition(planet, mx, my)
 
+    -- Enemy animation
+    Enemy.update(dt)
+
     -- Particles & floating scores
     Particles.update(dt)
     FloatingScore.update(dt)

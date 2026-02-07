@@ -3,6 +3,26 @@ local Physics = require("systems.physics")
 
 local Enemy = {}
 
+local planetImages = {}
+
+local planetFiles = {
+    "Mercury", "Venus", "Mars", "Jupiter",
+    "Saturn", "Uranus", "Neptune", "Pluto",
+}
+
+function Enemy.loadImage()
+    for _, name in ipairs(planetFiles) do
+        local ok, img = pcall(love.graphics.newImage, "assets/images/" .. name .. ".png")
+        if ok then
+            img:setFilter("linear", "linear")
+            table.insert(planetImages, img)
+        end
+    end
+end
+
+function Enemy.update(dt)
+end
+
 function Enemy.createOne(existingEnemies, planet)
     local r = Settings.ENEMY_RADIUS
     local minX = r + Settings.ENEMY_SPAWN_MARGIN_X
@@ -33,10 +53,16 @@ function Enemy.createOne(existingEnemies, planet)
         if not tooClose then break end
     until false
 
+    local img = nil
+    if #planetImages > 0 then
+        img = planetImages[math.random(#planetImages)]
+    end
+
     return {
         x = x,
         y = y,
         radius = r,
+        image = img,
     }
 end
 
@@ -49,12 +75,22 @@ function Enemy.initializeAll(planet)
 end
 
 function Enemy.draw(enemy)
-    love.graphics.setColor(Settings.COLORS.ENEMY)
-    love.graphics.circle("fill", enemy.x, enemy.y, enemy.radius)
-    love.graphics.setColor(Settings.COLORS.ENEMY_STROKE)
-    love.graphics.setLineWidth(2)
-    love.graphics.circle("line", enemy.x, enemy.y, enemy.radius)
-    love.graphics.setLineWidth(1)
+    if enemy.image then
+        local diameter = enemy.radius * 2
+        local iw, ih = enemy.image:getDimensions()
+        local sx = diameter / iw
+        local sy = diameter / ih
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.draw(enemy.image,
+            enemy.x - enemy.radius, enemy.y - enemy.radius, 0, sx, sy)
+    else
+        love.graphics.setColor(Settings.COLORS.ENEMY)
+        love.graphics.circle("fill", enemy.x, enemy.y, enemy.radius)
+        love.graphics.setColor(Settings.COLORS.ENEMY_STROKE)
+        love.graphics.setLineWidth(2)
+        love.graphics.circle("line", enemy.x, enemy.y, enemy.radius)
+        love.graphics.setLineWidth(1)
+    end
     love.graphics.setColor(1, 1, 1, 1)
 end
 
