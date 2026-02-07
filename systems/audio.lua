@@ -7,6 +7,8 @@ Audio.hitSound = nil
 Audio.gameOverSound = nil
 Audio.isMuted = false
 Audio.initialized = false
+Audio.bgmVolume = 0.5      -- 0.0 ~ 1.0
+Audio.sfxVolume = 0.5      -- 0.0 ~ 1.0
 
 local function generateTriangleWave(frequency, duration, sampleRate)
     local samples = math.floor(sampleRate * duration)
@@ -89,8 +91,12 @@ function Audio.init()
     local goData = generateSawtoothWave(Settings.GAMEOVER_SOUND_PITCH, Settings.GAMEOVER_SOUND_DURATION, 44100)
     Audio.gameOverSound = love.audio.newSource(goData)
 
-    -- Load mute state
+    -- Load saved state
     Audio.isMuted = Save.readMuteState()
+    local volumes = Save.readVolumes()
+    Audio.bgmVolume = volumes.bgm
+    Audio.sfxVolume = volumes.sfx
+    Audio.bgm:setVolume(Audio.bgmVolume)
 
     Audio.initialized = true
 end
@@ -110,12 +116,14 @@ end
 
 function Audio.playHit()
     if not Audio.initialized or Audio.isMuted or not Audio.hitSound then return end
+    Audio.hitSound:setVolume(Audio.sfxVolume)
     Audio.hitSound:stop()
     Audio.hitSound:play()
 end
 
 function Audio.playGameOver()
     if not Audio.initialized or Audio.isMuted or not Audio.gameOverSound then return end
+    Audio.gameOverSound:setVolume(Audio.sfxVolume)
     Audio.gameOverSound:stop()
     Audio.gameOverSound:play()
 end
@@ -126,6 +134,21 @@ function Audio.toggleMute()
     if Audio.isMuted then
         Audio.stopBGM()
     end
+end
+
+function Audio.setBGMVolume(vol)
+    Audio.bgmVolume = math.max(0, math.min(1, vol))
+    if Audio.bgm then
+        Audio.bgm:setVolume(Audio.bgmVolume)
+    end
+end
+
+function Audio.setSFXVolume(vol)
+    Audio.sfxVolume = math.max(0, math.min(1, vol))
+end
+
+function Audio.saveVolumes()
+    Save.writeVolumes(Audio.bgmVolume, Audio.sfxVolume)
 end
 
 return Audio

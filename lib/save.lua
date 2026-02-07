@@ -24,4 +24,20 @@ function Save.readMuteState()
     return false
 end
 
+function Save.writeVolumes(bgmVol, sfxVol)
+    love.filesystem.write("volumes.dat", string.format("%.2f,%.2f", bgmVol, sfxVol))
+end
+
+function Save.readVolumes()
+    if love.filesystem.getInfo("volumes.dat") then
+        local data = love.filesystem.read("volumes.dat")
+        local bgm, sfx = data:match("([%d%.]+),([%d%.]+)")
+        return {
+            bgm = tonumber(bgm) or 0.5,
+            sfx = tonumber(sfx) or 0.5,
+        }
+    end
+    return { bgm = 0.5, sfx = 0.5 }
+end
+
 return Save
