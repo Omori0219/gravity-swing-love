@@ -176,25 +176,124 @@ function drawNameInput()
 end
 
 function drawResult()
-    -- Max Combo
+    local cx = Settings.CANVAS_WIDTH / 2
+    local y = 310
+
+    -- Max Combo & Play Time (same line)
     love.graphics.setFont(fonts.small)
     love.graphics.setColor(0.667, 0.667, 0.667, 1)
     local comboText = "Max Combo: " .. (scoreData.maxCombo or 0)
-    local cw = fonts.small:getWidth(comboText)
-    love.graphics.print(comboText, (Settings.CANVAS_WIDTH - cw) / 2, 310)
-
-    -- Play Time
     local timeText = "Time: " .. (scoreData.playTime or "00:00:00:00")
-    local tw = fonts.small:getWidth(timeText)
-    love.graphics.print(timeText, (Settings.CANVAS_WIDTH - tw) / 2, 340)
+    local statsText = comboText .. "   " .. timeText
+    local stw = fonts.small:getWidth(statsText)
+    love.graphics.print(statsText, (Settings.CANVAS_WIDTH - stw) / 2, y)
+    y = y + 25
 
     -- High Score
     love.graphics.setColor(Settings.COLORS.GOLD)
     local hsText = "High Score: " .. (scoreData.highScore or 0)
     local hw = fonts.small:getWidth(hsText)
-    love.graphics.print(hsText, (Settings.CANVAS_WIDTH - hw) / 2, 375)
+    love.graphics.print(hsText, (Settings.CANVAS_WIDTH - hw) / 2, y)
+    y = y + 35
 
-    -- Buttons
+    -- Destroyed planets parade
+    local destroyed = scoreData.destroyedPlanets or {}
+    if #destroyed > 0 then
+        love.graphics.setFont(fonts.tiny)
+        love.graphics.setColor(0.667, 0.667, 0.667, 1)
+        local titleText = "Destroyed:"
+        local ttw = fonts.tiny:getWidth(titleText)
+        love.graphics.print(titleText, (Settings.CANVAS_WIDTH - ttw) / 2, y)
+        y = y + 18
+
+        -- Planet icons in order
+        local iconSize = 24
+        local iconGap = 4
+        local maxPerRow = math.floor((Settings.CANVAS_WIDTH - 100) / (iconSize + iconGap))
+        local totalIcons = #destroyed
+        local rows = math.ceil(totalIcons / maxPerRow)
+        local maxRows = 4
+        if rows > maxRows then rows = maxRows end
+
+        for row = 1, rows do
+            local startIdx = (row - 1) * maxPerRow + 1
+            local endIdx = math.min(row * maxPerRow, totalIcons)
+            local count = endIdx - startIdx + 1
+            local rowWidth = count * (iconSize + iconGap) - iconGap
+            local startX = (Settings.CANVAS_WIDTH - rowWidth) / 2
+
+            for i = startIdx, endIdx do
+                local p = destroyed[i]
+                local px = startX + (i - startIdx) * (iconSize + iconGap)
+                if p.image then
+                    local iw, ih = p.image:getDimensions()
+                    local sx = iconSize / iw
+                    local sy = iconSize / ih
+                    love.graphics.setColor(1, 1, 1, 1)
+                    love.graphics.draw(p.image, px, y, 0, sx, sy)
+                end
+            end
+            y = y + iconSize + 3
+        end
+
+        if totalIcons > maxRows * maxPerRow then
+            love.graphics.setFont(fonts.tiny)
+            love.graphics.setColor(0.5, 0.5, 0.5, 1)
+            local moreText = "+" .. (totalIcons - maxRows * maxPerRow) .. " more..."
+            local mw = fonts.tiny:getWidth(moreText)
+            love.graphics.print(moreText, (Settings.CANVAS_WIDTH - mw) / 2, y)
+            y = y + 16
+        end
+
+        y = y + 6
+
+        -- Summary: Planet x count
+        local counts = {}
+        local order = {}
+        for _, p in ipairs(destroyed) do
+            local name = p.name or "???"
+            if not counts[name] then
+                counts[name] = 0
+                table.insert(order, name)
+            end
+            counts[name] = counts[name] + 1
+        end
+
+        love.graphics.setFont(fonts.tiny)
+        local summaryParts = {}
+        for _, name in ipairs(order) do
+            table.insert(summaryParts, name .. " x" .. counts[name])
+        end
+        local summaryText = table.concat(summaryParts, "  ")
+        local sumW = fonts.tiny:getWidth(summaryText)
+
+        if sumW > Settings.CANVAS_WIDTH - 60 then
+            -- Wrap into two lines
+            local half = math.ceil(#summaryParts / 2)
+            local line1 = table.concat(summaryParts, "  ", 1, half)
+            local line2 = table.concat(summaryParts, "  ", half + 1)
+            love.graphics.setColor(0.8, 0.8, 0.8, 1)
+            local l1w = fonts.tiny:getWidth(line1)
+            love.graphics.print(line1, (Settings.CANVAS_WIDTH - l1w) / 2, y)
+            y = y + 14
+            local l2w = fonts.tiny:getWidth(line2)
+            love.graphics.print(line2, (Settings.CANVAS_WIDTH - l2w) / 2, y)
+            y = y + 14
+        else
+            love.graphics.setColor(0.8, 0.8, 0.8, 1)
+            love.graphics.print(summaryText, (Settings.CANVAS_WIDTH - sumW) / 2, y)
+            y = y + 14
+        end
+    end
+
+    y = y + 15
+
+    -- Buttons (dynamic position)
+    local bw, bh = 240, 44
+    local bx = cx - bw / 2
+    playAgainBtn.x, playAgainBtn.y = bx, y
+    titleBtn.x, titleBtn.y = bx, y + 55
+
     playAgainBtn:draw()
     titleBtn:draw()
 

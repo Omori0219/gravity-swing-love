@@ -14,6 +14,7 @@ local Playing = {}
 
 local planet, asteroid, enemies
 local score, highScore, consecutiveHits, maxConsecutiveHits
+local destroyedPlanets
 local canLaunch, launchDelayTimer
 local gameStartTime, gameOver
 local fonts
@@ -33,6 +34,7 @@ function Playing.enter(f, hs, mode)
     highScore = hs
     consecutiveHits = 0
     maxConsecutiveHits = 0
+    destroyedPlanets = {}
     canLaunch = false
     launchDelayTimer = 1.0
     gameStartTime = love.timer.getTime()
@@ -119,6 +121,7 @@ function Playing.update(dt)
     for i = #enemies, 1, -1 do
         if Enemy.checkCollision(enemies[i], asteroid) then
             local ex, ey = enemies[i].x, enemies[i].y
+            table.insert(destroyedPlanets, { name = enemies[i].name, image = enemies[i].image })
 
             -- Base score
             score = score + 1
@@ -237,6 +240,7 @@ function Playing.getPlayTime()
 end
 function Playing.isGameOver() return gameOver end
 function Playing.isTimeUp() return timeUp end
+function Playing.getDestroyedPlanets() return destroyedPlanets end
 function Playing.getGameMode() return gameMode end
 function Playing.getConsecutiveHits() return consecutiveHits end
 

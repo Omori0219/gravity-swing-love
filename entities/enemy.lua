@@ -34,6 +34,7 @@ function Enemy.loadImage()
         if ok then
             img:setFilter("linear", "linear")
             table.insert(planets, {
+                name = def.name,
                 image = img,
                 radius = computeRadius(def.ratio),
             })
@@ -84,6 +85,7 @@ function Enemy.createOne(existingEnemies, gravityPlanet)
         x = x,
         y = y,
         radius = r,
+        name = p and p.name or nil,
         image = p and p.image or nil,
     }
 end

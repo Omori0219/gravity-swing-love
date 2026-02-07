@@ -293,5 +293,6 @@ function switchToGameOver()
         isNewHighScore = isNewHighScore,
         gameMode = currentGameMode,
         qualified = qualified,
+        destroyedPlanets = Playing.getDestroyedPlanets(),
     })
 end
