@@ -33,7 +33,7 @@ function Asteroid.new()
     angle = angle + (math.random() - 0.5) * math.rad(60)
 
     -- Speed: base * random(1.0 ~ 2.0)
-    local speedMultiplier = 1.0 + math.random()
+    local speedMultiplier = Settings.ASTEROID_SPEED_MIN + math.random() * (Settings.ASTEROID_SPEED_MAX - Settings.ASTEROID_SPEED_MIN)
     local speed = Settings.ASTEROID_INITIAL_VX * speedMultiplier
 
     return {
