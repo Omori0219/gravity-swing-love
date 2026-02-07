@@ -4,6 +4,7 @@ local Planet = {}
 
 local earthImage = nil
 local imgW, imgH = 0, 0
+local glowTimer = 0
 
 function Planet.loadImage()
     local ok, img = pcall(love.graphics.newImage, "assets/images/Earth.png")
@@ -24,15 +25,31 @@ function Planet.new()
     }
 end
 
+function Planet.update(dt)
+    glowTimer = glowTimer + dt
+end
+
 function Planet.updatePosition(planet, mx, my)
     planet.x = math.max(planet.radius, math.min(Settings.CANVAS_WIDTH - planet.radius, mx))
     planet.y = math.max(planet.radius, math.min(Settings.CANVAS_HEIGHT - planet.radius, my))
 end
 
 function Planet.draw(planet)
-    -- Atmosphere glow
-    love.graphics.setColor(0.4, 0.7, 1.0, 0.15)
-    love.graphics.circle("fill", planet.x, planet.y, planet.radius + 3)
+    local r = planet.radius
+    local pulse = 0.5 + 0.5 * math.sin(glowTimer * Settings.PLANET_GLOW_PULSE_SPEED)
+    local gc = Settings.PLANET_GLOW_COLOR
+    local layers = Settings.PLANET_GLOW_LAYERS
+    local spread = Settings.PLANET_GLOW_SPREAD
+    local peakAlpha = Settings.PLANET_GLOW_ALPHA
+
+    -- Pulsing glow
+    for i = layers, 1, -1 do
+        local t = i / layers
+        local glowR = r + (r * (spread - 1)) * t
+        local alpha = peakAlpha * (1 - t) * (0.6 + 0.4 * pulse)
+        love.graphics.setColor(gc[1], gc[2], gc[3], alpha)
+        love.graphics.circle("fill", planet.x, planet.y, glowR)
+    end
 
     if earthImage then
         local diameter = planet.radius * 2

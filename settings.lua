@@ -62,6 +62,11 @@ Settings.PLANET_SUCK_IN_RADIUS = 14
 Settings.GRAVITY_LENS_STRENGTH = 0.0004
 Settings.GRAVITY_LENS_MAX_DISTORTION = 0.15
 Settings.GRAVITY_LENS_RADIUS = 50            -- pixels: distortion fades to zero at this distance
+Settings.PLANET_GLOW_LAYERS = 8
+Settings.PLANET_GLOW_SPREAD = 2.0           -- glow extends to radius * this
+Settings.PLANET_GLOW_ALPHA = 0.18           -- peak alpha of innermost layer
+Settings.PLANET_GLOW_COLOR = {0.2, 1.0, 0.4}  -- green
+Settings.PLANET_GLOW_PULSE_SPEED = 2.5      -- radians per second
 
 -- Enemies
 Settings.NUM_ENEMIES =6

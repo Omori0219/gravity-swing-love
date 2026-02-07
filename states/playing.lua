@@ -70,6 +70,7 @@ function Playing.update(dt)
     -- Planet follows mouse
     local mx, my = love.mouse.getPosition()
     Planet.updatePosition(planet, mx, my)
+    Planet.update(dt)
 
     -- Enemy animation
     Enemy.update(dt)
