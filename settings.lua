@@ -70,6 +70,10 @@ Settings.ENEMY_SPAWN_MARGIN_X = 50
 Settings.ENEMY_SPAWN_MARGIN_Y = 30
 Settings.ENEMY_SPAWN_SEPARATION = 30
 Settings.ENEMY_SPAWN_MAX_ATTEMPTS = 50
+Settings.ENEMY_GLOW_LAYERS = 6
+Settings.ENEMY_GLOW_SPREAD = 2.5           -- glow extends to radius * this
+Settings.ENEMY_GLOW_ALPHA = 0.25         -- peak alpha of innermost layer
+Settings.ENEMY_GLOW_COLOR = {0.7, 0.8, 1.0}
 
 -- Physics
 Settings.GRAVITY_CONSTANT = 0.1

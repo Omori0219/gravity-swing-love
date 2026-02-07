@@ -97,14 +97,28 @@ function Enemy.initializeAll(planet)
 end
 
 function Enemy.draw(enemy)
+    -- Soft glow behind the planet
+    local r = enemy.radius
+    local layers = Settings.ENEMY_GLOW_LAYERS
+    local spread = Settings.ENEMY_GLOW_SPREAD
+    local peakAlpha = Settings.ENEMY_GLOW_ALPHA
+    local gc = Settings.ENEMY_GLOW_COLOR
+    for i = layers, 1, -1 do
+        local t = i / layers
+        local glowR = r + (r * (spread - 1)) * t
+        local alpha = peakAlpha * (1 - t)
+        love.graphics.setColor(gc[1], gc[2], gc[3], alpha)
+        love.graphics.circle("fill", enemy.x, enemy.y, glowR)
+    end
+
     if enemy.image then
-        local diameter = enemy.radius * 2
+        local diameter = r * 2
         local iw, ih = enemy.image:getDimensions()
         local sx = diameter / iw
         local sy = diameter / ih
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.draw(enemy.image,
-            enemy.x - enemy.radius, enemy.y - enemy.radius, 0, sx, sy)
+            enemy.x - r, enemy.y - r, 0, sx, sy)
     else
         love.graphics.setColor(Settings.COLORS.ENEMY)
         love.graphics.circle("fill", enemy.x, enemy.y, enemy.radius)
