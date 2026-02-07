@@ -52,7 +52,8 @@ function HUD.drawKillFeed(destroyedPlanets, font)
         local p = destroyedPlanets[total - i + 1]  -- newest first
         local alpha = 1 - (i - 1) / maxVisible
         love.graphics.setColor(0.8, 0.8, 0.8, alpha)
-        love.graphics.print(p.name or "???", x, y + (i - 1) * lineHeight)
+        local label = (p.name or "???") .. " " .. (p.baseScore or 1) .. "x" .. (p.comboLevel or 1)
+        love.graphics.print(label, x, y + (i - 1) * lineHeight)
     end
     love.graphics.setColor(1, 1, 1, 1)
 end

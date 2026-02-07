@@ -8,15 +8,16 @@ local planets = {}
 -- Real radius (km): Mercury 2440, Venus 6052, Mars 3390, Jupiter 69911,
 -- Saturn 58232, Uranus 25362, Neptune 24622, Pluto 1188
 -- Normalized to Jupiter=1.0, then sqrt-scaled for visual balance
+-- baseScore: smaller planet = higher score (sorted by real size desc: 1-8)
 local planetDefs = {
-    { name = "Mercury", ratio = 0.035 },
-    { name = "Venus",   ratio = 0.087 },
-    { name = "Mars",    ratio = 0.049 },
-    { name = "Jupiter", ratio = 1.000 },
-    { name = "Saturn",  ratio = 0.833 },
-    { name = "Uranus",  ratio = 0.363 },
-    { name = "Neptune", ratio = 0.352 },
-    { name = "Pluto",   ratio = 0.017 },
+    { name = "Mercury", ratio = 0.035, baseScore = 7 },
+    { name = "Venus",   ratio = 0.087, baseScore = 5 },
+    { name = "Mars",    ratio = 0.049, baseScore = 6 },
+    { name = "Jupiter", ratio = 1.000, baseScore = 1 },
+    { name = "Saturn",  ratio = 0.833, baseScore = 2 },
+    { name = "Uranus",  ratio = 0.363, baseScore = 3 },
+    { name = "Neptune", ratio = 0.352, baseScore = 4 },
+    { name = "Pluto",   ratio = 0.017, baseScore = 8 },
 }
 
 local function computeRadius(ratio)
@@ -37,6 +38,7 @@ function Enemy.loadImage()
                 name = def.name,
                 image = img,
                 radius = computeRadius(def.ratio),
+                baseScore = def.baseScore,
             })
         end
     end
@@ -87,6 +89,7 @@ function Enemy.createOne(existingEnemies, gravityPlanet)
         radius = r,
         name = p and p.name or nil,
         image = p and p.image or nil,
+        baseScore = p and p.baseScore or 1,
     }
 end
 

@@ -15,6 +15,8 @@ local Playing = {}
 local planet, asteroid, enemies
 local score, highScore, consecutiveHits, maxConsecutiveHits
 local destroyedPlanets
+local currentChainKills
+local chainClearTimer
 local canLaunch, launchDelayTimer
 local gameStartTime, gameOver
 local fonts
@@ -35,6 +37,8 @@ function Playing.enter(f, hs, mode)
     consecutiveHits = 0
     maxConsecutiveHits = 0
     destroyedPlanets = {}
+    currentChainKills = {}
+    chainClearTimer = 0
     canLaunch = false
     launchDelayTimer = Settings.ASTEROID_FIRST_LAUNCH_DELAY
     gameStartTime = love.timer.getTime()
@@ -74,6 +78,15 @@ function Playing.update(dt)
 
     -- Enemy animation
     Enemy.update(dt)
+
+    -- Kill feed clear timer
+    if chainClearTimer > 0 then
+        chainClearTimer = chainClearTimer - dt
+        if chainClearTimer <= 0 then
+            currentChainKills = {}
+            chainClearTimer = 0
+        end
+    end
 
     -- Particles & floating scores
     Particles.update(dt)
@@ -124,32 +137,39 @@ function Playing.update(dt)
             local ex, ey = enemies[i].x, enemies[i].y
             table.insert(destroyedPlanets, { name = enemies[i].name, image = enemies[i].image })
 
-            -- Base score
-            score = score + 1
-            FloatingScore.spawn("+1", ex, ey, Settings.COLORS.WHITE, false)
-            Particles.spawn(ex, ey, "hit")
-            Audio.playHit()
-
             -- Combo
             consecutiveHits = consecutiveHits + 1
+            chainClearTimer = 0
+            local baseScore = enemies[i].baseScore or 1
+            table.insert(currentChainKills, {
+                name = enemies[i].name,
+                baseScore = baseScore,
+                comboLevel = consecutiveHits,
+            })
             if consecutiveHits > maxConsecutiveHits then
                 maxConsecutiveHits = consecutiveHits
             end
 
-            -- Combo bonus
-            if consecutiveHits >= 2 then
-                local bonusScore = consecutiveHits - 1
-                score = score + bonusScore
+            -- Score = baseScore x combo
+            local comboMultiplier = math.max(1, consecutiveHits)
+            local hitScore = baseScore * comboMultiplier
+            score = score + hitScore
 
-                local appearance = Asteroid.getAppearance(consecutiveHits)
-                local bonusColor
+            local appearance = Asteroid.getAppearance(consecutiveHits)
+            local scoreColor
+            if consecutiveHits >= 2 then
                 if appearance.type == "solid" then
-                    bonusColor = appearance.color
+                    scoreColor = appearance.color
                 else
-                    bonusColor = appearance.colors[1]
+                    scoreColor = appearance.colors[1]
                 end
-                FloatingScore.spawn("+" .. bonusScore, ex, ey + 20, bonusColor, true, consecutiveHits)
+            else
+                scoreColor = Settings.COLORS.WHITE
             end
+            FloatingScore.spawn("+" .. hitScore, ex, ey, scoreColor, consecutiveHits >= 2, consecutiveHits)
+
+            Particles.spawn(ex, ey, "hit")
+            Audio.playHit()
 
             -- Respawn enemy
             enemies[i] = Enemy.createOne(enemies, planet)
@@ -160,6 +180,9 @@ function Playing.update(dt)
     if Asteroid.isOutOfBounds(asteroid) then
         asteroid.dying = true
         canLaunch = false
+        if #currentChainKills > 0 then
+            chainClearTimer = 1.5
+        end
         launchDelayTimer = Settings.ASTEROID_LAUNCH_DELAY_MIN + math.random() * (Settings.ASTEROID_LAUNCH_DELAY_MAX - Settings.ASTEROID_LAUNCH_DELAY_MIN)
     end
 end
@@ -190,7 +213,7 @@ function Playing.draw()
     FloatingScore.draw(fonts.floating)
 
     -- Kill feed
-    HUD.drawKillFeed(destroyedPlanets, fonts.killFeed)
+    HUD.drawKillFeed(currentChainKills, fonts.killFeed)
 
     -- Timer display for timed mode
     if gameMode == "timed" then
