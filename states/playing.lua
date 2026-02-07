@@ -86,6 +86,7 @@ function Playing.update(dt)
     -- Auto-launch
     if not asteroid and canLaunch then
         asteroid = Asteroid.new()
+        consecutiveHits = math.random(Settings.ASTEROID_INITIAL_COMBO_MIN, Settings.ASTEROID_INITIAL_COMBO_MAX)
     end
 
     if not asteroid then return end
@@ -142,7 +143,6 @@ function Playing.update(dt)
     if Asteroid.isOutOfBounds(asteroid) then
         asteroid = nil
         canLaunch = false
-        consecutiveHits = 0
         launchDelayTimer = Settings.ASTEROID_LAUNCH_DELAY_MIN + math.random() * (Settings.ASTEROID_LAUNCH_DELAY_MAX - Settings.ASTEROID_LAUNCH_DELAY_MIN)
     end
 end
