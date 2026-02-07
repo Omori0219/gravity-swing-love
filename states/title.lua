@@ -6,14 +6,16 @@ local Title = {}
 
 local startBtn, timedBtn, optionsBtn
 local fonts
+local rankingList = {}
 
-function Title.enter(f)
+function Title.enter(f, ranking)
     fonts = f
+    rankingList = ranking or {}
     local bw, bh = 240, 44
     local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
-    startBtn = Button.new("Start", cx, 330, bw, bh, Settings.COLORS.GREEN, fonts.medium)
-    timedBtn = Button.new("60s Mode", cx, 390, bw, bh, {0.9, 0.55, 0.1}, fonts.medium)
-    optionsBtn = Button.new("Options", cx, 460, bw, 36, Settings.COLORS.BLUE, fonts.small)
+    startBtn = Button.new("Start", cx, 380, bw, bh, Settings.COLORS.GREEN, fonts.medium)
+    timedBtn = Button.new("60s Mode", cx, 435, bw, bh, {0.9, 0.55, 0.1}, fonts.medium)
+    optionsBtn = Button.new("Options", cx, 500, bw, 36, Settings.COLORS.BLUE, fonts.small)
 end
 
 function Title.update(dt)
@@ -23,7 +25,7 @@ function Title.update(dt)
     optionsBtn:updateHover(mx, my)
 end
 
-function Title.draw(highScore)
+function Title.draw()
     -- Background
     love.graphics.setColor(Settings.COLORS.BACKGROUND)
     love.graphics.rectangle("fill", 0, 0, Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT)
@@ -43,12 +45,8 @@ function Title.draw(highScore)
     local vw = fonts.tiny:getWidth(verText)
     love.graphics.print(verText, (Settings.CANVAS_WIDTH - vw) / 2, 190)
 
-    -- High Score
-    love.graphics.setColor(Settings.COLORS.GOLD)
-    love.graphics.setFont(fonts.small)
-    local hsText = "High Score: " .. highScore
-    local hw = fonts.small:getWidth(hsText)
-    love.graphics.print(hsText, (Settings.CANVAS_WIDTH - hw) / 2, 280)
+    -- Ranking
+    drawRanking()
 
     -- Buttons
     startBtn:draw()
@@ -63,6 +61,54 @@ function Title.draw(highScore)
     love.graphics.print(cpText, (Settings.CANVAS_WIDTH - cw) / 2, Settings.CANVAS_HEIGHT - 30)
 
     love.graphics.setColor(1, 1, 1, 1)
+end
+
+function drawRanking()
+    local cx = Settings.CANVAS_WIDTH / 2
+
+    -- Header
+    love.graphics.setColor(Settings.COLORS.GOLD)
+    love.graphics.setFont(fonts.small)
+    local header = "RANKING"
+    local hw = fonts.small:getWidth(header)
+    love.graphics.print(header, (Settings.CANVAS_WIDTH - hw) / 2, 220)
+
+    -- Entries
+    love.graphics.setFont(fonts.tiny)
+    local startY = 240
+    local lineH = 13
+
+    for i = 1, 10 do
+        local y = startY + (i - 1) * lineH
+        local entry = rankingList[i]
+
+        if entry then
+            -- Rank number
+            if i == 1 then
+                love.graphics.setColor(Settings.COLORS.GOLD)
+            elseif i == 2 then
+                love.graphics.setColor(0.75, 0.75, 0.75, 1)
+            elseif i == 3 then
+                love.graphics.setColor(0.80, 0.50, 0.20, 1)
+            else
+                love.graphics.setColor(0.6, 0.6, 0.6, 1)
+            end
+
+            local rank = string.format("%02d", i)
+            local name = entry.name
+            local score = tostring(entry.score)
+
+            -- Format: "01. AAA     1234"
+            local line = rank .. ". " .. name .. string.rep(" ", 5 - #name) .. "  " .. score
+            local lw = fonts.tiny:getWidth(line)
+            love.graphics.print(line, (Settings.CANVAS_WIDTH - lw) / 2, y)
+        else
+            love.graphics.setColor(0.3, 0.3, 0.3, 1)
+            local line = string.format("%02d. ---      0", i)
+            local lw = fonts.tiny:getWidth(line)
+            love.graphics.print(line, (Settings.CANVAS_WIDTH - lw) / 2, y)
+        end
+    end
 end
 
 function Title.mousepressed(x, y, button)

@@ -2,6 +2,7 @@ local Settings = require("settings")
 local Stars = require("systems.stars")
 local Audio = require("systems.audio")
 local Save = require("lib.save")
+local Ranking = require("lib.ranking")
 local Particles = require("systems.particles")
 local ScreenShake = require("systems.screenshake")
 local HUD = require("ui.hud")
@@ -36,10 +37,20 @@ function love.load()
     -- Initialize systems
     Stars.generate()
     Audio.init()
-    highScore = Save.readHighScore()
+    Ranking.load()
+
+    -- Migrate: seed ranking from old high score if ranking is empty
+    if #Ranking.getList() == 0 then
+        local oldHigh = Save.readHighScore()
+        if oldHigh > 0 then
+            Ranking.insert("???", oldHigh)
+        end
+    end
+
+    highScore = Ranking.getHighScore()
 
     -- Enter title state
-    Title.enter(fonts)
+    Title.enter(fonts, Ranking.getList())
 end
 
 function love.update(dt)
@@ -72,7 +83,7 @@ function love.draw()
     love.graphics.rectangle("fill", 0, 0, Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT)
 
     if currentState == "title" then
-        Title.draw(highScore)
+        Title.draw()
     elseif currentState == "ready" then
         Ready.draw()
     elseif currentState == "options" then
@@ -109,7 +120,9 @@ function love.keypressed(key)
             switchToResume()
             return
         elseif currentState == "gameover" then
-            switchToTitle()
+            if GameOver.getPhase() == "result" then
+                switchToTitle()
+            end
             return
         end
     end
@@ -142,10 +155,19 @@ function love.keypressed(key)
             switchToTitle()
         end
     elseif currentState == "gameover" then
-        local action = GameOver.keypressed(key)
-        if action == "play" then
+        local action, name = GameOver.keypressed(key)
+        if action == "name_confirmed" then
+            Ranking.insert(name, Playing.getScore())
+            highScore = Ranking.getHighScore()
+        elseif action == "play" then
             switchToPlaying(currentGameMode)
         end
+    end
+end
+
+function love.textinput(text)
+    if currentState == "gameover" then
+        GameOver.textinput(text)
     end
 end
 
@@ -200,7 +222,7 @@ function switchToTitle()
     love.mouse.setVisible(true)
     Audio.stopBGM()
     Particles.clear()
-    Title.enter(fonts)
+    Title.enter(fonts, Ranking.getList())
 end
 
 function switchToOptions()
@@ -244,6 +266,8 @@ function switchToGameOver()
     end
     Playing.setHighScore(highScore)
 
+    local qualified = Ranking.isQualified(finalScore)
+
     local reason
     local header
     if Playing.isTimeUp() then
@@ -265,5 +289,6 @@ function switchToGameOver()
         header = header,
         isNewHighScore = isNewHighScore,
         gameMode = currentGameMode,
+        qualified = qualified,
     })
 end
