@@ -25,16 +25,24 @@ function Paused.draw()
 
     -- Instructions
     love.graphics.setFont(fonts.small)
-    local subText = "Press Space to Resume"
+    local subText = "Space / ESC : Resume"
     local sw = fonts.small:getWidth(subText)
     love.graphics.print(subText, (Settings.CANVAS_WIDTH - sw) / 2, Settings.CANVAS_HEIGHT / 2 + 20)
+
+    love.graphics.setColor(Settings.COLORS.GRAY)
+    local quitText = "Q : Back to Title"
+    local qw = fonts.small:getWidth(quitText)
+    love.graphics.print(quitText, (Settings.CANVAS_WIDTH - qw) / 2, Settings.CANVAS_HEIGHT / 2 + 50)
 
     love.graphics.setColor(1, 1, 1, 1)
 end
 
 function Paused.keypressed(key)
-    if key == "space" then
+    if key == "space" or key == "escape" then
         return "resume"
+    end
+    if key == "q" then
+        return "quit"
     end
     return nil
 end

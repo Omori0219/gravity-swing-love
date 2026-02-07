@@ -90,10 +90,10 @@ function love.keypressed(key)
             switchToTitle()
             return
         elseif currentState == "playing" then
-            switchToTitle()
+            switchToPaused()
             return
         elseif currentState == "paused" then
-            switchToTitle()
+            switchToResume()
             return
         elseif currentState == "gameover" then
             switchToTitle()
@@ -120,6 +120,8 @@ function love.keypressed(key)
         local action = Paused.keypressed(key)
         if action == "resume" then
             switchToResume()
+        elseif action == "quit" then
+            switchToTitle()
         end
     elseif currentState == "gameover" then
         local action = GameOver.keypressed(key)
