@@ -143,7 +143,7 @@ function Playing.update(dt)
         asteroid = nil
         canLaunch = false
         consecutiveHits = 0
-        launchDelayTimer = Settings.ASTEROID_LAUNCH_DELAY
+        launchDelayTimer = Settings.ASTEROID_LAUNCH_DELAY_MIN + math.random() * (Settings.ASTEROID_LAUNCH_DELAY_MAX - Settings.ASTEROID_LAUNCH_DELAY_MIN)
     end
 end
 

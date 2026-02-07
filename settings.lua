@@ -31,7 +31,8 @@ Settings.CANVAS_WIDTH = 800
 Settings.CANVAS_HEIGHT = 600
 
 -- Asteroid (projectile)
-Settings.ASTEROID_LAUNCH_DELAY = 1.2          -- seconds
+Settings.ASTEROID_LAUNCH_DELAY_MIN = 1.2       -- seconds
+Settings.ASTEROID_LAUNCH_DELAY_MAX = 2.5       -- seconds
 Settings.ASTEROID_INITIAL_VX = 5.5
 Settings.ASTEROID_SPEED_MIN = 1.0
 Settings.ASTEROID_SPEED_MAX = 3.0
