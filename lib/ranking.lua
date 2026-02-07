@@ -32,7 +32,7 @@ function Ranking.save()
 end
 
 function Ranking.isQualified(score)
-    if score <= 0 then return false end
+    if score < 10 then return false end
     if #list < MAX_ENTRIES then return true end
     return score > list[#list].score
 end
