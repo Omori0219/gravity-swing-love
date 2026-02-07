@@ -166,7 +166,7 @@ function Playing.draw()
     love.graphics.setColor(Settings.COLORS.BLACK)
     love.graphics.rectangle("fill", 0, 0, Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT)
 
-    Stars.draw()
+    Stars.draw(planet.x, planet.y)
 
     Planet.draw(planet)
     Enemy.drawAll(enemies)

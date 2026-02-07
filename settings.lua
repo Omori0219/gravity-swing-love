@@ -58,6 +58,9 @@ Settings.ASTEROID_INITIAL_COMBO_BIAS = 2.0    -- higher = more likely to be low
 Settings.PLANET_RADIUS = 10
 Settings.PLANET_MASS = BASE_PLANET_MASS * scale * scale
 Settings.PLANET_SUCK_IN_RADIUS = 8
+Settings.GRAVITY_LENS_STRENGTH = 0.0004
+Settings.GRAVITY_LENS_MAX_DISTORTION = 0.15
+Settings.GRAVITY_LENS_RADIUS = 50            -- pixels: distortion fades to zero at this distance
 
 -- Enemies
 Settings.NUM_ENEMIES =7
