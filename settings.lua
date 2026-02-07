@@ -63,8 +63,9 @@ Settings.GRAVITY_LENS_MAX_DISTORTION = 0.15
 Settings.GRAVITY_LENS_RADIUS = 50            -- pixels: distortion fades to zero at this distance
 
 -- Enemies
-Settings.NUM_ENEMIES =7
-Settings.ENEMY_RADIUS = 20
+Settings.NUM_ENEMIES =6
+Settings.ENEMY_RADIUS_MIN = 20
+Settings.ENEMY_RADIUS_MAX = 40
 Settings.ENEMY_SPAWN_MARGIN_X = 50
 Settings.ENEMY_SPAWN_MARGIN_Y = 30
 Settings.ENEMY_SPAWN_SEPARATION = 30

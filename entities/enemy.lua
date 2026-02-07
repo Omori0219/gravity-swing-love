@@ -3,19 +3,40 @@ local Physics = require("systems.physics")
 
 local Enemy = {}
 
-local planetImages = {}
+local planets = {}
 
-local planetFiles = {
-    "Mercury", "Venus", "Mars", "Jupiter",
-    "Saturn", "Uranus", "Neptune", "Pluto",
+-- Real radius (km): Mercury 2440, Venus 6052, Mars 3390, Jupiter 69911,
+-- Saturn 58232, Uranus 25362, Neptune 24622, Pluto 1188
+-- Normalized to Jupiter=1.0, then sqrt-scaled for visual balance
+local planetDefs = {
+    { name = "Mercury", ratio = 0.035 },
+    { name = "Venus",   ratio = 0.087 },
+    { name = "Mars",    ratio = 0.049 },
+    { name = "Jupiter", ratio = 1.000 },
+    { name = "Saturn",  ratio = 0.833 },
+    { name = "Uranus",  ratio = 0.363 },
+    { name = "Neptune", ratio = 0.352 },
+    { name = "Pluto",   ratio = 0.017 },
 }
 
+local function computeRadius(ratio)
+    local minR = Settings.ENEMY_RADIUS_MIN
+    local maxR = Settings.ENEMY_RADIUS_MAX
+    local sqrtMin = math.sqrt(0.017)
+    local sqrtMax = math.sqrt(1.000)
+    local t = (math.sqrt(ratio) - sqrtMin) / (sqrtMax - sqrtMin)
+    return math.floor(minR + t * (maxR - minR) + 0.5)
+end
+
 function Enemy.loadImage()
-    for _, name in ipairs(planetFiles) do
-        local ok, img = pcall(love.graphics.newImage, "assets/images/" .. name .. ".png")
+    for _, def in ipairs(planetDefs) do
+        local ok, img = pcall(love.graphics.newImage, "assets/images/" .. def.name .. ".png")
         if ok then
             img:setFilter("linear", "linear")
-            table.insert(planetImages, img)
+            table.insert(planets, {
+                image = img,
+                radius = computeRadius(def.ratio),
+            })
         end
     end
 end
@@ -23,8 +44,14 @@ end
 function Enemy.update(dt)
 end
 
-function Enemy.createOne(existingEnemies, planet)
-    local r = Settings.ENEMY_RADIUS
+function Enemy.createOne(existingEnemies, gravityPlanet)
+    local p = nil
+    local r = Settings.ENEMY_RADIUS_MAX
+    if #planets > 0 then
+        p = planets[math.random(#planets)]
+        r = p.radius
+    end
+
     local minX = r + Settings.ENEMY_SPAWN_MARGIN_X
     local maxX = Settings.CANVAS_WIDTH - r - Settings.ENEMY_SPAWN_MARGIN_X
     local minY = r + Settings.ENEMY_SPAWN_MARGIN_Y
@@ -40,29 +67,24 @@ function Enemy.createOne(existingEnemies, planet)
 
         local tooClose = false
         for _, e in ipairs(existingEnemies) do
-            if Physics.getDistance(e.x, e.y, x, y) < r * 4 then
+            if Physics.getDistance(e.x, e.y, x, y) < math.max(r, e.radius) * 4 then
                 tooClose = true
                 break
             end
         end
-        if not tooClose and planet then
-            if Physics.getDistance(planet.x, planet.y, x, y) < Settings.PLANET_RADIUS + r + Settings.ENEMY_SPAWN_SEPARATION then
+        if not tooClose and gravityPlanet then
+            if Physics.getDistance(gravityPlanet.x, gravityPlanet.y, x, y) < Settings.PLANET_RADIUS + r + Settings.ENEMY_SPAWN_SEPARATION then
                 tooClose = true
             end
         end
         if not tooClose then break end
     until false
 
-    local img = nil
-    if #planetImages > 0 then
-        img = planetImages[math.random(#planetImages)]
-    end
-
     return {
         x = x,
         y = y,
         radius = r,
-        image = img,
+        image = p and p.image or nil,
     }
 end
 
