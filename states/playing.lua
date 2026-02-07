@@ -19,7 +19,13 @@ local canLaunch, launchDelayTimer
 local gameStartTime, gameOver
 local fonts
 
-function Playing.enter(f, hs)
+-- Timed mode
+local gameMode          -- "normal" or "timed"
+local timeRemaining     -- seconds left (60s mode)
+local timeUp            -- true when timer expired
+local TIMED_DURATION = 60
+
+function Playing.enter(f, hs, mode)
     fonts = f
     planet = Planet.new()
     cannon = Cannon.new()
@@ -33,6 +39,11 @@ function Playing.enter(f, hs)
     launchDelayTimer = 0
     gameStartTime = love.timer.getTime()
     gameOver = false
+
+    gameMode = mode or "normal"
+    timeRemaining = TIMED_DURATION
+    timeUp = false
+
     Particles.clear()
     FloatingScore.clear()
     Audio.playBGM()
@@ -43,6 +54,17 @@ function Playing.update(dt)
         Particles.update(dt)
         ScreenShake.update(dt)
         return
+    end
+
+    -- Countdown for timed mode
+    if gameMode == "timed" then
+        timeRemaining = timeRemaining - dt
+        if timeRemaining <= 0 then
+            timeRemaining = 0
+            timeUp = true
+            Playing.triggerGameOver()
+            return
+        end
     end
 
     -- Planet follows mouse
@@ -151,6 +173,11 @@ function Playing.draw()
     HUD.drawScore(score, fonts.medium)
     HUD.drawHighScore(highScore, fonts.tiny)
     FloatingScore.draw(fonts.small)
+
+    -- Timer display for timed mode
+    if gameMode == "timed" then
+        HUD.drawTimer(timeRemaining, fonts)
+    end
 end
 
 function Playing.triggerGameOver()
@@ -158,8 +185,11 @@ function Playing.triggerGameOver()
     asteroid = nil
     canLaunch = false
 
-    ScreenShake.trigger(Settings.SCREEN_SHAKE_DURATION, Settings.SCREEN_SHAKE_INTENSITY)
-    Particles.spawn(planet.x, planet.y, "gameover")
+    if not timeUp then
+        -- Planet collision: shake + explosion
+        ScreenShake.trigger(Settings.SCREEN_SHAKE_DURATION, Settings.SCREEN_SHAKE_INTENSITY)
+        Particles.spawn(planet.x, planet.y, "gameover")
+    end
     Audio.playGameOver()
     Audio.stopBGM()
 end
@@ -181,7 +211,7 @@ function Playing.mousepressed(x, y, button)
     return nil
 end
 
--- Getters for game state (used by gameover/paused states)
+-- Getters for game state
 function Playing.getScore() return score end
 function Playing.getHighScore() return highScore end
 function Playing.setHighScore(hs) highScore = hs end
@@ -190,6 +220,8 @@ function Playing.getPlayTime()
     return love.timer.getTime() - gameStartTime
 end
 function Playing.isGameOver() return gameOver end
+function Playing.isTimeUp() return timeUp end
+function Playing.getGameMode() return gameMode end
 function Playing.getConsecutiveHits() return consecutiveHits end
 
 return Playing

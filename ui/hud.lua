@@ -20,6 +20,26 @@ function HUD.drawHighScore(highScore, font)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
+function HUD.drawTimer(timeRemaining, fonts)
+    local seconds = math.ceil(timeRemaining)
+    local text = tostring(seconds)
+
+    -- Color: white normally, red when < 10s, pulsing red when < 5s
+    if timeRemaining <= 5 then
+        local pulse = math.abs(math.sin(love.timer.getTime() * 6))
+        love.graphics.setColor(1, pulse * 0.3, pulse * 0.3, 1)
+    elseif timeRemaining <= 10 then
+        love.graphics.setColor(1, 0.3, 0.2, 1)
+    else
+        love.graphics.setColor(1, 1, 1, 0.9)
+    end
+
+    love.graphics.setFont(fonts.timer)
+    local tw = fonts.timer:getWidth(text)
+    love.graphics.print(text, (Settings.CANVAS_WIDTH - tw) / 2, 50)
+    love.graphics.setColor(1, 1, 1, 1)
+end
+
 function HUD.formatPlayTime(elapsedSeconds)
     local cs = math.floor((elapsedSeconds * 100) % 100)
     local totalSec = math.floor(elapsedSeconds)

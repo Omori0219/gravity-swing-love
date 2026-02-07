@@ -27,16 +27,25 @@ function GameOver.draw()
     love.graphics.setColor(0, 0, 0, 0.85)
     love.graphics.rectangle("fill", 0, 0, Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT)
 
-    -- GAME OVER
-    love.graphics.setColor(1, 0.2, 0.2, 1)
+    -- Header (GAME OVER! or TIME UP!)
+    local header = scoreData.header or "GAME OVER!"
+    local isTimeUp = (header == "TIME UP!")
+    if isTimeUp then
+        love.graphics.setColor(Settings.COLORS.GOLD)
+    else
+        love.graphics.setColor(1, 0.2, 0.2, 1)
+    end
     love.graphics.setFont(fonts.large)
-    local goText = "GAME OVER!"
-    local gw = fonts.large:getWidth(goText)
-    love.graphics.print(goText, (Settings.CANVAS_WIDTH - gw) / 2, 140)
+    local gw = fonts.large:getWidth(header)
+    love.graphics.print(header, (Settings.CANVAS_WIDTH - gw) / 2, 140)
 
     -- Reason
     love.graphics.setFont(fonts.small)
-    love.graphics.setColor(1, 0.3, 0.3, 1)
+    if isTimeUp then
+        love.graphics.setColor(0.9, 0.8, 0.4, 1)
+    else
+        love.graphics.setColor(1, 0.3, 0.3, 1)
+    end
     local reason = scoreData.reason or "The earth destroyed."
     local rw = fonts.small:getWidth(reason)
     love.graphics.print(reason, (Settings.CANVAS_WIDTH - rw) / 2, 180)

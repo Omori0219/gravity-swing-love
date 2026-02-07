@@ -11,10 +11,12 @@ local Title = require("states.title")
 local Playing = require("states.playing")
 local Paused = require("states.paused")
 local GameOver = require("states.gameover")
+local Options = require("states.options")
 
 -- Game state
-local currentState = "title"   -- "title", "playing", "paused", "gameover"
+local currentState = "title"   -- "title", "playing", "paused", "gameover", "options"
 local highScore = 0
+local currentGameMode = "normal"  -- "normal" or "timed"
 local fonts = {}
 
 function love.load()
@@ -28,6 +30,7 @@ function love.load()
     fonts.medium = love.graphics.newFont(fontPath, 16)
     fonts.large = love.graphics.newFont(fontPath, 24)
     fonts.title = love.graphics.newFont(fontPath, 28)
+    fonts.timer = love.graphics.newFont(fontPath, 48)
 
     -- Initialize systems
     Stars.generate()
@@ -44,6 +47,8 @@ function love.update(dt)
 
     if currentState == "title" then
         Title.update(dt)
+    elseif currentState == "options" then
+        Options.update(dt)
     elseif currentState == "playing" then
         Playing.update(dt)
         -- Check if game over happened during update
@@ -65,6 +70,8 @@ function love.draw()
 
     if currentState == "title" then
         Title.draw(highScore)
+    elseif currentState == "options" then
+        Options.draw()
     elseif currentState == "playing" then
         Playing.draw()
     elseif currentState == "paused" then
@@ -78,7 +85,11 @@ end
 
 function love.keypressed(key)
     if key == "escape" then
-        if currentState == "playing" then
+        if currentState == "options" then
+            Audio.saveVolumes()
+            switchToTitle()
+            return
+        elseif currentState == "playing" then
             switchToTitle()
             return
         elseif currentState == "paused" then
@@ -93,7 +104,12 @@ function love.keypressed(key)
     if currentState == "title" then
         local action = Title.keypressed(key)
         if action == "play" then
-            switchToPlaying()
+            switchToPlaying("normal")
+        end
+    elseif currentState == "options" then
+        local action = Options.keypressed(key)
+        if action == "back" then
+            switchToTitle()
         end
     elseif currentState == "playing" then
         local action = Playing.keypressed(key)
@@ -108,8 +124,20 @@ function love.keypressed(key)
     elseif currentState == "gameover" then
         local action = GameOver.keypressed(key)
         if action == "play" then
-            switchToPlaying()
+            switchToPlaying(currentGameMode)
         end
+    end
+end
+
+function love.mousemoved(x, y)
+    if currentState == "options" then
+        Options.mousemoved(x, y)
+    end
+end
+
+function love.mousereleased(x, y, button)
+    if currentState == "options" then
+        Options.mousereleased(x, y, button)
     end
 end
 
@@ -117,14 +145,23 @@ function love.mousepressed(x, y, button)
     if currentState == "title" then
         local action = Title.mousepressed(x, y, button)
         if action == "play" then
-            switchToPlaying()
+            switchToPlaying("normal")
+        elseif action == "play_timed" then
+            switchToPlaying("timed")
+        elseif action == "options" then
+            switchToOptions()
+        end
+    elseif currentState == "options" then
+        local action = Options.mousepressed(x, y, button)
+        if action == "back" then
+            switchToTitle()
         end
     elseif currentState == "playing" then
         Playing.mousepressed(x, y, button)
     elseif currentState == "gameover" then
         local action = GameOver.mousepressed(x, y, button)
         if action == "play" then
-            switchToPlaying()
+            switchToPlaying(currentGameMode)
         end
     end
 end
@@ -138,10 +175,16 @@ function switchToTitle()
     Title.enter(fonts)
 end
 
-function switchToPlaying()
+function switchToOptions()
+    currentState = "options"
+    Options.enter(fonts)
+end
+
+function switchToPlaying(mode)
+    currentGameMode = mode or "normal"
     currentState = "playing"
     Audio.init()
-    Playing.enter(fonts, highScore)
+    Playing.enter(fonts, highScore, currentGameMode)
 end
 
 function switchToPaused()
@@ -164,13 +207,25 @@ function switchToGameOver()
     end
     Playing.setHighScore(highScore)
 
+    local reason
+    local header
+    if Playing.isTimeUp() then
+        header = "TIME UP!"
+        reason = "Final score in 60 seconds"
+    else
+        header = "GAME OVER!"
+        reason = "The earth destroyed."
+    end
+
     currentState = "gameover"
     GameOver.enter(fonts, {
         score = finalScore,
         highScore = highScore,
         maxCombo = Playing.getMaxCombo(),
         playTime = HUD.formatPlayTime(Playing.getPlayTime()),
-        reason = "The earth destroyed.",
+        reason = reason,
+        header = header,
         isNewHighScore = isNewHighScore,
+        gameMode = currentGameMode,
     })
 end
