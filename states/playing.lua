@@ -178,6 +178,11 @@ function Playing.draw()
     if gameMode == "timed" then
         HUD.drawTimer(timeRemaining, fonts)
     end
+
+    -- Mute indicator
+    if Audio.isMuted then
+        HUD.drawMuteIndicator(fonts.tiny)
+    end
 end
 
 function Playing.triggerGameOver()

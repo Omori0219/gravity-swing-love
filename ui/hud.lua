@@ -40,6 +40,15 @@ function HUD.drawTimer(timeRemaining, fonts)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
+function HUD.drawMuteIndicator(font)
+    love.graphics.setFont(font)
+    love.graphics.setColor(1, 1, 1, 0.4)
+    local text = "MUTE"
+    local tw = font:getWidth(text)
+    love.graphics.print(text, Settings.CANVAS_WIDTH - tw - 10, Settings.CANVAS_HEIGHT - 20)
+    love.graphics.setColor(1, 1, 1, 1)
+end
+
 function HUD.formatPlayTime(elapsedSeconds)
     local cs = math.floor((elapsedSeconds * 100) % 100)
     local totalSec = math.floor(elapsedSeconds)
