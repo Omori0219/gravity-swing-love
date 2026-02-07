@@ -4,7 +4,7 @@ local Button = require("ui.button")
 
 local Title = {}
 
-local startBtn, timedBtn, optionsBtn
+local startBtn, optionsBtn
 local fonts
 local rankingList = {}
 
@@ -14,14 +14,12 @@ function Title.enter(f, ranking)
     local bw, bh = 240, 44
     local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
     startBtn = Button.new("Start", cx, 380, bw, bh, Settings.COLORS.GREEN, fonts.medium)
-    timedBtn = Button.new("120s Mode", cx, 435, bw, bh, {0.9, 0.55, 0.1}, fonts.medium)
-    optionsBtn = Button.new("Options", cx, 500, bw, 36, Settings.COLORS.BLUE, fonts.small)
+    optionsBtn = Button.new("Options", cx, 435, bw, 36, Settings.COLORS.BLUE, fonts.small)
 end
 
 function Title.update(dt)
     local mx, my = love.mouse.getPosition()
     startBtn:updateHover(mx, my)
-    timedBtn:updateHover(mx, my)
     optionsBtn:updateHover(mx, my)
 end
 
@@ -50,7 +48,6 @@ function Title.draw()
 
     -- Buttons
     startBtn:draw()
-    timedBtn:draw()
     optionsBtn:draw()
 
     -- Copyright
@@ -115,9 +112,6 @@ function Title.mousepressed(x, y, button)
     if button == 1 then
         if startBtn:isClicked(x, y) then
             return "play"
-        end
-        if timedBtn:isClicked(x, y) then
-            return "play_timed"
         end
         if optionsBtn:isClicked(x, y) then
             return "options"

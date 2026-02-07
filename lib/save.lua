@@ -41,4 +41,15 @@ function Save.readVolumes()
     return { bgm = 0.5, sfx = 0.5 }
 end
 
+function Save.writeEternalMode(isEnabled)
+    love.filesystem.write(Settings.ETERNAL_MODE_FILE, isEnabled and "1" or "0")
+end
+
+function Save.readEternalMode()
+    if love.filesystem.getInfo(Settings.ETERNAL_MODE_FILE) then
+        return love.filesystem.read(Settings.ETERNAL_MODE_FILE) == "1"
+    end
+    return false
+end
+
 return Save

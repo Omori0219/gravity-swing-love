@@ -132,7 +132,7 @@ function love.keypressed(key)
     if currentState == "title" then
         local action = Title.keypressed(key)
         if action == "play" then
-            switchToReady("normal")
+            switchToReady()
         end
     elseif currentState == "ready" then
         local action = Ready.keypressed(key)
@@ -189,9 +189,7 @@ function love.mousepressed(x, y, button)
     if currentState == "title" then
         local action = Title.mousepressed(x, y, button)
         if action == "play" then
-            switchToReady("normal")
-        elseif action == "play_timed" then
-            switchToReady("timed")
+            switchToReady()
         elseif action == "options" then
             switchToOptions()
         end
@@ -232,8 +230,8 @@ function switchToOptions()
     Options.enter(fonts)
 end
 
-function switchToReady(mode)
-    currentGameMode = mode or "normal"
+function switchToReady()
+    currentGameMode = Options.isEternalMode() and "normal" or "timed"
     currentState = "ready"
     Playing.enter(fonts, highScore, currentGameMode)
     Ready.enter(fonts, currentGameMode)

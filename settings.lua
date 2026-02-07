@@ -124,6 +124,7 @@ Settings.GAMEOVER_SOUND_DURATION = 1.5
 -- Save keys
 Settings.HIGH_SCORE_FILE = "highscore.dat"
 Settings.MUTE_STATE_FILE = "mutestate.dat"
+Settings.ETERNAL_MODE_FILE = "eternal_mode.dat"
 
 -- Debug
 Settings.DEBUG = false
