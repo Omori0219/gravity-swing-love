@@ -38,16 +38,16 @@ local scale = Settings.CANVAS_WIDTH / Settings.BASE_CANVAS_WIDTH
 
 -- Gameplay tuning knobs (edit these to adjust gravity feel)
 local BASE_PLANET_MASS = 16000
-local BASE_MAX_GRAVITY_FORCE = 2.0
+local BASE_MAX_GRAVITY_FORCE = 1.5
 -- NOTE: Settings.PLANET_MASS / MAX_GRAVITY_FORCE are auto-scaled from these. Don't edit those directly.
 
 -- Asteroid (projectile)
 Settings.ASTEROID_LAUNCH_DELAY_MIN = 1.2       -- seconds
 Settings.ASTEROID_LAUNCH_DELAY_MAX = 2.5       -- seconds
-Settings.ASTEROID_INITIAL_VX = 5.5
+Settings.ASTEROID_INITIAL_VX = 4.5
 Settings.ASTEROID_SPEED_MIN = 1.0
 Settings.ASTEROID_SPEED_MAX = 3.0
-Settings.ASTEROID_RADIUS = 10
+Settings.ASTEROID_RADIUS = 8
 Settings.ASTEROID_TRAIL_LENGTH = 33
 Settings.ASTEROID_BOUNDARY_BUFFER = 80
 Settings.ASTEROID_INITIAL_COMBO_MIN = 0
@@ -55,9 +55,9 @@ Settings.ASTEROID_INITIAL_COMBO_MAX = 8
 Settings.ASTEROID_INITIAL_COMBO_BIAS = 2.0    -- higher = more likely to be low
 
 -- Planet (player-controlled gravity source)
-Settings.PLANET_RADIUS = 10
+Settings.PLANET_RADIUS = 14
 Settings.PLANET_MASS = BASE_PLANET_MASS * scale * scale
-Settings.PLANET_SUCK_IN_RADIUS = 8
+Settings.PLANET_SUCK_IN_RADIUS = 14
 Settings.GRAVITY_LENS_STRENGTH = 0.0004
 Settings.GRAVITY_LENS_MAX_DISTORTION = 0.15
 Settings.GRAVITY_LENS_RADIUS = 50            -- pixels: distortion fades to zero at this distance
