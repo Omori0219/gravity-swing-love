@@ -197,6 +197,29 @@ function drawResult()
     -- Buttons
     playAgainBtn:draw()
     titleBtn:draw()
+
+    -- Enter key hint next to Play Again
+    local kx = playAgainBtn.x + playAgainBtn.w + 12
+    local ky = playAgainBtn.y + (playAgainBtn.h - 20) / 2
+    local kw, kh = 56, 20
+    love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
+    love.graphics.rectangle("line", kx, ky, kw, kh, 4, 4)
+    love.graphics.setFont(fonts.tiny)
+    love.graphics.setColor(0.6, 0.6, 0.6, 0.8)
+    local label = "Enter"
+    local lw = fonts.tiny:getWidth(label)
+    love.graphics.print(label, kx + (kw - lw) / 2, ky + (kh - fonts.tiny:getHeight()) / 2)
+
+    -- Esc key hint next to Title
+    local ex = titleBtn.x + titleBtn.w + 12
+    local ey = titleBtn.y + (titleBtn.h - 20) / 2
+    local ew = 40
+    love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
+    love.graphics.rectangle("line", ex, ey, ew, kh, 4, 4)
+    love.graphics.setColor(0.6, 0.6, 0.6, 0.8)
+    local escLabel = "Esc"
+    local elw = fonts.tiny:getWidth(escLabel)
+    love.graphics.print(escLabel, ex + (ew - elw) / 2, ey + (kh - fonts.tiny:getHeight()) / 2)
 end
 
 function GameOver.textinput(text)

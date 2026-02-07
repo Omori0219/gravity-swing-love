@@ -50,6 +50,19 @@ function Title.draw()
     startBtn:draw()
     optionsBtn:draw()
 
+    -- Enter key hint next to Start
+    love.graphics.setFont(fonts.tiny)
+    local kh = 20
+    local kx = startBtn.x + startBtn.w + 12
+    local ky = startBtn.y + (startBtn.h - kh) / 2
+    local kw = 56
+    love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
+    love.graphics.rectangle("line", kx, ky, kw, kh, 4, 4)
+    love.graphics.setColor(0.6, 0.6, 0.6, 0.8)
+    local enterLabel = "Enter"
+    local elw = fonts.tiny:getWidth(enterLabel)
+    love.graphics.print(enterLabel, kx + (kw - elw) / 2, ky + (kh - fonts.tiny:getHeight()) / 2)
+
     -- Copyright
     love.graphics.setColor(0.4, 0.4, 0.4, 1)
     love.graphics.setFont(fonts.tiny)

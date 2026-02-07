@@ -72,6 +72,19 @@ function Options.draw()
     -- Back button
     backBtn:draw()
 
+    -- Esc key hint next to Back
+    love.graphics.setFont(fonts.tiny)
+    local kh = 20
+    local kx = backBtn.x + backBtn.w + 12
+    local ky = backBtn.y + (backBtn.h - kh) / 2
+    local kw = 40
+    love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
+    love.graphics.rectangle("line", kx, ky, kw, kh, 4, 4)
+    love.graphics.setColor(0.6, 0.6, 0.6, 0.8)
+    local escLabel = "Esc"
+    local elw = fonts.tiny:getWidth(escLabel)
+    love.graphics.print(escLabel, kx + (kw - elw) / 2, ky + (kh - fonts.tiny:getHeight()) / 2)
+
     love.graphics.setColor(1, 1, 1, 1)
 end
 
