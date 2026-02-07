@@ -76,12 +76,15 @@ Settings.ENEMY_GLOW_SPREAD = 1.6          -- glow extends to radius * this
 Settings.ENEMY_GLOW_ALPHA = 0.12         -- peak alpha of innermost layer
 Settings.ENEMY_GLOW_COLOR = {0.7, 0.8, 1.0}
 
+-- Game over overlay
+Settings.GAMEOVER_OVERLAY_ALPHA = 0.75
+
 -- Kill feed
 Settings.KILL_FEED_FONT_SIZE = 20
 Settings.KILL_FEED_MAX_VISIBLE = 12
 Settings.KILL_FEED_LINE_HEIGHT = 24
 Settings.KILL_FEED_X = 12
-Settings.KILL_FEED_Y = 60
+Settings.KILL_FEED_Y = 10
 
 -- Physics
 Settings.GRAVITY_CONSTANT = 0.1

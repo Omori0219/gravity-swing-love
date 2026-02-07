@@ -48,7 +48,7 @@ end
 
 function GameOver.draw()
     -- Semi-transparent overlay
-    love.graphics.setColor(0, 0, 0, 0.55)
+    love.graphics.setColor(0, 0, 0, Settings.GAMEOVER_OVERLAY_ALPHA)
     love.graphics.rectangle("fill", 0, 0, Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT)
 
     -- Header (GAME OVER! or TIME UP!)
