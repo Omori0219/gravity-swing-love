@@ -159,6 +159,7 @@ function Playing.draw()
     love.graphics.rectangle("fill", 0, 0, Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT)
 
     Stars.draw()
+
     Cannon.draw(cannon)
     Planet.draw(planet)
     Enemy.drawAll(enemies)

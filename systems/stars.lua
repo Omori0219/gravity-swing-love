@@ -1,24 +1,25 @@
 local Settings = require("settings")
 
 local Stars = {}
-Stars.list = {}
+local bgImage = nil
 
 function Stars.generate()
-    Stars.list = {}
-    for i = 1, Settings.STARS_COUNT do
-        table.insert(Stars.list, {
-            x = math.random() * Settings.CANVAS_WIDTH,
-            y = math.random() * Settings.CANVAS_HEIGHT,
-            radius = math.random() * 1.5,
-            alpha = math.random() * 0.5 + 0.5,
-        })
+    local ok, img = pcall(love.graphics.newImage, "assets/images/space.jpg")
+    if ok then
+        bgImage = img
+        bgImage:setFilter("linear", "linear")
     end
 end
 
 function Stars.draw()
-    for _, star in ipairs(Stars.list) do
-        love.graphics.setColor(1, 1, 1, star.alpha)
-        love.graphics.circle("fill", star.x, star.y, star.radius)
+    if bgImage then
+        local w, h = Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT
+        local imgW, imgH = bgImage:getDimensions()
+        local scale = math.max(w / imgW, h / imgH)
+        local ox = (w - imgW * scale) / 2
+        local oy = (h - imgH * scale) / 2
+        love.graphics.setColor(1, 1, 1, 0.4)
+        love.graphics.draw(bgImage, ox, oy, 0, scale, scale)
     end
     love.graphics.setColor(1, 1, 1, 1)
 end
