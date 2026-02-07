@@ -37,7 +37,7 @@ Settings.BASE_CANVAS_HEIGHT = 600
 local scale = Settings.CANVAS_WIDTH / Settings.BASE_CANVAS_WIDTH
 
 -- Gameplay tuning knobs (edit these to adjust gravity feel)
-local BASE_PLANET_MASS = 8000
+local BASE_PLANET_MASS = 16000
 local BASE_MAX_GRAVITY_FORCE = 2.0
 -- NOTE: Settings.PLANET_MASS / MAX_GRAVITY_FORCE are auto-scaled from these. Don't edit those directly.
 
