@@ -5,7 +5,7 @@ local Audio = require("systems.audio")
 
 local Paused = {}
 local fonts
-local resumeBtn, quitBtn
+local resumeBtn, optionsBtn, quitBtn
 local buttons = {}
 local selectedIndex = 1
 
@@ -16,8 +16,9 @@ function Paused.enter(f)
     local cy = Settings.CANVAS_HEIGHT / 2
 
     resumeBtn = Button.new("Resume", cx, cy + 10, bw, 40, Settings.COLORS.GREEN, fonts.small)
-    quitBtn = Button.new("Back to Title", cx, cy + 64, bw, 40, Settings.COLORS.GRAY, fonts.small)
-    buttons = { resumeBtn, quitBtn }
+    optionsBtn = Button.new("Options", cx, cy + 64, bw, 40, Settings.COLORS.BLUE, fonts.small)
+    quitBtn = Button.new("Back to Title", cx, cy + 118, bw, 40, Settings.COLORS.GRAY, fonts.small)
+    buttons = { resumeBtn, optionsBtn, quitBtn }
     selectedIndex = 1
     Paused._updateSelection()
 end
@@ -30,8 +31,9 @@ end
 
 function Paused.update(dt)
     local mx, my = love.mouse.getPosition()
-    resumeBtn:updateHover(mx, my)
-    quitBtn:updateHover(mx, my)
+    for _, btn in ipairs(buttons) do
+        btn:updateHover(mx, my)
+    end
 end
 
 function Paused.draw()
@@ -47,8 +49,9 @@ function Paused.draw()
     love.graphics.print(text, (Settings.CANVAS_WIDTH - tw) / 2, Settings.CANVAS_HEIGHT / 2 - 50)
 
     -- Buttons
-    resumeBtn:draw()
-    quitBtn:draw()
+    for _, btn in ipairs(buttons) do
+        btn:draw()
+    end
 
     love.graphics.setColor(1, 1, 1, 1)
 end
@@ -71,7 +74,8 @@ function Paused.keypressed(key)
     if KeyMap.isConfirm(key) then
         Audio.playConfirm()
         if selectedIndex == 1 then return "resume" end
-        if selectedIndex == 2 then return "quit" end
+        if selectedIndex == 2 then return "options" end
+        if selectedIndex == 3 then return "quit" end
     end
 
     if KeyMap.isCancel(key) then
@@ -85,6 +89,10 @@ function Paused.mousepressed(x, y, button)
     if button == 1 and resumeBtn:isClicked(x, y) then
         Audio.playConfirm()
         return "resume"
+    end
+    if button == 1 and optionsBtn:isClicked(x, y) then
+        Audio.playConfirm()
+        return "options"
     end
     if button == 1 and quitBtn:isClicked(x, y) then
         Audio.playConfirm()

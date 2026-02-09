@@ -24,6 +24,7 @@ local Credits = require("states.credits")
 local currentState = "title"   -- "title", "ready", "playing", "paused", "gameover", "options", "credits"
 local highScore = 0
 local currentGameMode = "normal"  -- "normal" or "timed"
+local optionsReturnState = "title"  -- where to go back from options
 local fonts = {}
 
 function love.load()
@@ -171,7 +172,7 @@ function love.keypressed(key)
         elseif currentState == "options" then
             Audio.playCancel()
             Audio.saveVolumes()
-            switchToTitle()
+            switchFromOptions()
             return
         elseif currentState == "credits" then
             Audio.playCancel()
@@ -210,7 +211,7 @@ function love.keypressed(key)
     elseif currentState == "options" then
         local action = Options.keypressed(key)
         if action == "back" then
-            switchToTitle()
+            switchFromOptions()
         end
     elseif currentState == "credits" then
         local action = Credits.keypressed(key)
@@ -226,6 +227,8 @@ function love.keypressed(key)
         local action = Paused.keypressed(key)
         if action == "resume" then
             switchToResume()
+        elseif action == "options" then
+            switchToOptions("paused")
         elseif action == "quit" then
             switchToTitle()
         end
@@ -284,7 +287,7 @@ function love.mousepressed(x, y, button)
     elseif currentState == "options" then
         local action = Options.mousepressed(gx, gy, button)
         if action == "back" then
-            switchToTitle()
+            switchFromOptions()
         end
     elseif currentState == "credits" then
         local action = Credits.mousepressed(gx, gy, button)
@@ -297,6 +300,8 @@ function love.mousepressed(x, y, button)
         local action = Paused.mousepressed(gx, gy, button)
         if action == "resume" then
             switchToResume()
+        elseif action == "options" then
+            switchToOptions("paused")
         elseif action == "quit" then
             switchToTitle()
         end
@@ -330,9 +335,19 @@ function switchToTitle()
     Title.enter(fonts, Ranking.getList())
 end
 
-function switchToOptions()
+function switchToOptions(returnTo)
+    optionsReturnState = returnTo or "title"
     currentState = "options"
     Options.enter(fonts)
+end
+
+function switchFromOptions()
+    if optionsReturnState == "paused" then
+        currentState = "paused"
+        Paused.enter(fonts)
+    else
+        switchToTitle()
+    end
 end
 
 function switchToCredits()
