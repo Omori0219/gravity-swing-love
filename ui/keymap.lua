@@ -1,11 +1,11 @@
 local KeyMap = {}
 
 function KeyMap.isConfirm(key)
-    return key == "return" or key == "kpenter" or key == "space"
+    return key == "return" or key == "kpenter" or key == "space" or key == "z"
 end
 
 function KeyMap.isCancel(key)
-    return key == "escape"
+    return key == "escape" or key == "x"
 end
 
 function KeyMap.isUp(key)
