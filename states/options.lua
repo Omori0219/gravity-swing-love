@@ -18,6 +18,7 @@ local fonts
 local eternalMode = false
 local catMode = false
 local isFullscreen = false
+local fromPause = false
 
 local WINDOW_SIZES = {
     { w = 800,  h = 600,  label = "800x600" },
@@ -31,8 +32,9 @@ local selectedSizeIndex = 2 -- cursor position (may differ from currentSizeIndex
 local NAV_ROWS = { "fullscreen", "size", "eternal", "catmode", "back" }
 local selectedRow = 1
 
-function Options.enter(f)
+function Options.enter(f, isPaused)
     fonts = f
+    fromPause = isPaused or false
     eternalMode = Save.readEternalMode()
     catMode = Save.readCatMode()
     Asteroid.setCatMode(catMode)
@@ -102,7 +104,10 @@ end
 
 function Options._makeEternalBtn(x, y, w)
     local btn
-    if eternalMode then
+    if fromPause then
+        local label = eternalMode and "Eternal Mode: ON" or "Eternal Mode: OFF"
+        btn = Button.new(label, x, y, w, 40, {0.25, 0.25, 0.25}, fonts.small)
+    elseif eternalMode then
         btn = Button.new("Eternal Mode: ON", x, y, w, 40, {0.9, 0.55, 0.1}, fonts.small)
     else
         btn = Button.new("Eternal Mode: OFF", x, y, w, 40, {0.4, 0.4, 0.4}, fonts.small)
@@ -224,7 +229,7 @@ function Options.mousepressed(x, y, button)
         end
     end
 
-    if button == 1 and eternalBtn:isClicked(x, y) then
+    if button == 1 and not fromPause and eternalBtn:isClicked(x, y) then
         Audio.playConfirm()
         Options._toggleEternal()
     end
@@ -334,7 +339,7 @@ function Options.keypressed(key)
             Options._toggleFullscreen()
         elseif row == "size" and not isFullscreen then
             Options._selectSize(selectedSizeIndex)
-        elseif row == "eternal" then
+        elseif row == "eternal" and not fromPause then
             Options._toggleEternal()
         elseif row == "catmode" then
             Options._toggleCatMode()

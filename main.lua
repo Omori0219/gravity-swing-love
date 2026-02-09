@@ -338,7 +338,7 @@ end
 function switchToOptions(returnTo)
     optionsReturnState = returnTo or "title"
     currentState = "options"
-    Options.enter(fonts)
+    Options.enter(fonts, optionsReturnState == "paused")
 end
 
 function switchFromOptions()
