@@ -1,6 +1,7 @@
 local Settings = require("settings")
 local Button = require("ui.button")
 local HUD = require("ui.hud")
+local KeyMap = require("ui.keymap")
 
 local GameOver = {}
 
@@ -344,7 +345,6 @@ function GameOver.keypressed(key)
             return nil
         elseif key == "return" or key == "kpenter" then
             if #inputName >= MIN_NAME_LEN then
-                -- Confirm name - return special action with name
                 phase = "result"
                 selectedIndex = 1
                 GameOver._updateSelection()
@@ -352,30 +352,25 @@ function GameOver.keypressed(key)
             end
             return nil
         end
-        -- Block other actions during input
         return nil
     end
 
     -- Result phase: navigation
-    if key == "up" then
+    if KeyMap.isUp(key) then
         selectedIndex = selectedIndex - 1
         if selectedIndex < 1 then selectedIndex = #buttons end
         GameOver._updateSelection()
         return nil
-    elseif key == "down" then
+    elseif KeyMap.isDown(key) then
         selectedIndex = selectedIndex + 1
         if selectedIndex > #buttons then selectedIndex = 1 end
         GameOver._updateSelection()
         return nil
     end
 
-    if key == "return" or key == "kpenter" then
+    if KeyMap.isConfirm(key) then
         if selectedIndex == 1 then return "play" end
         if selectedIndex == 2 then return "title" end
-    end
-
-    if key == "space" then
-        return "play"
     end
     return nil
 end

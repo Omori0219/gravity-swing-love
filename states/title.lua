@@ -1,6 +1,7 @@
 local Settings = require("settings")
 local Stars = require("systems.stars")
 local Button = require("ui.button")
+local KeyMap = require("ui.keymap")
 
 local Title = {}
 
@@ -146,25 +147,21 @@ function Title.mousepressed(x, y, button)
 end
 
 function Title.keypressed(key)
-    if key == "up" then
+    if KeyMap.isUp(key) then
         selectedIndex = selectedIndex - 1
         if selectedIndex < 1 then selectedIndex = #buttons end
         Title._updateSelection()
         return nil
-    elseif key == "down" then
+    elseif KeyMap.isDown(key) then
         selectedIndex = selectedIndex + 1
         if selectedIndex > #buttons then selectedIndex = 1 end
         Title._updateSelection()
         return nil
     end
 
-    if key == "return" or key == "kpenter" then
+    if KeyMap.isConfirm(key) then
         if selectedIndex == 1 then return "play" end
         if selectedIndex == 2 then return "options" end
-    end
-
-    if key == "space" then
-        return "play"
     end
     return nil
 end

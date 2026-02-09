@@ -1,5 +1,6 @@
 local Settings = require("settings")
 local Button = require("ui.button")
+local KeyMap = require("ui.keymap")
 
 local Paused = {}
 local fonts
@@ -66,28 +67,25 @@ function Paused.draw()
 end
 
 function Paused.keypressed(key)
-    if key == "up" then
+    if KeyMap.isUp(key) then
         selectedIndex = selectedIndex - 1
         if selectedIndex < 1 then selectedIndex = #buttons end
         Paused._updateSelection()
         return nil
-    elseif key == "down" then
+    elseif KeyMap.isDown(key) then
         selectedIndex = selectedIndex + 1
         if selectedIndex > #buttons then selectedIndex = 1 end
         Paused._updateSelection()
         return nil
     end
 
-    if key == "return" or key == "kpenter" then
+    if KeyMap.isConfirm(key) then
         if selectedIndex == 1 then return "resume" end
         if selectedIndex == 2 then return "quit" end
     end
 
-    if key == "space" or key == "escape" then
+    if KeyMap.isCancel(key) then
         return "resume"
-    end
-    if key == "q" then
-        return "quit"
     end
     return nil
 end

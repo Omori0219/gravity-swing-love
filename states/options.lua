@@ -5,6 +5,7 @@ local Button = require("ui.button")
 local Slider = require("ui.slider")
 local Audio = require("systems.audio")
 local Save = require("lib.save")
+local KeyMap = require("ui.keymap")
 
 local Options = {}
 
@@ -21,6 +22,7 @@ local WINDOW_SIZES = {
     { w = 1600, h = 1200, label = "1600x1200" },
 }
 local currentSizeIndex = 2  -- default: 1200x900
+local selectedSizeIndex = 2 -- cursor position (may differ from currentSizeIndex)
 
 -- Navigation: rows are "fullscreen", "size", "eternal", "back"
 local NAV_ROWS = { "fullscreen", "size", "eternal", "back" }
@@ -50,6 +52,7 @@ function Options.enter(f)
     local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
 
     Options._makeFullscreenBtn(cx, 350, bw)
+    selectedSizeIndex = currentSizeIndex
     Options._makeSizeButtons(410)
     eternalBtn = Options._makeEternalBtn(cx, 480, bw)
 
@@ -112,8 +115,8 @@ function Options._updateSelection()
     if row == "fullscreen" then
         if fullscreenBtn then fullscreenBtn.selected = true end
     elseif row == "size" then
-        if sizeButtons[currentSizeIndex] then
-            sizeButtons[currentSizeIndex].selected = true
+        if sizeButtons[selectedSizeIndex] then
+            sizeButtons[selectedSizeIndex].selected = true
         end
     elseif row == "eternal" then
         if eternalBtn then eternalBtn.selected = true end
@@ -184,7 +187,7 @@ function Options.draw()
     local row = NAV_ROWS[selectedRow]
     local selBtn
     if row == "fullscreen" then selBtn = fullscreenBtn
-    elseif row == "size" then selBtn = sizeButtons[currentSizeIndex]
+    elseif row == "size" then selBtn = sizeButtons[selectedSizeIndex]
     elseif row == "eternal" then selBtn = eternalBtn
     elseif row == "back" then selBtn = backBtn
     end
@@ -287,42 +290,39 @@ function Options.mousereleased(x, y, button)
 end
 
 function Options.keypressed(key)
-    if key == "up" then
+    if KeyMap.isUp(key) then
         selectedRow = selectedRow - 1
         if selectedRow < 1 then selectedRow = #NAV_ROWS end
         Options._updateSelection()
         return nil
-    elseif key == "down" then
+    elseif KeyMap.isDown(key) then
         selectedRow = selectedRow + 1
         if selectedRow > #NAV_ROWS then selectedRow = 1 end
         Options._updateSelection()
         return nil
     end
 
-    -- Left/right for size row
+    -- Left/right for size row (move cursor only, no apply)
     local row = NAV_ROWS[selectedRow]
     if row == "size" and not isFullscreen then
-        if key == "left" then
-            currentSizeIndex = currentSizeIndex - 1
-            if currentSizeIndex < 1 then currentSizeIndex = #WINDOW_SIZES end
-            Options._selectSize(currentSizeIndex)
+        if KeyMap.isLeft(key) then
+            selectedSizeIndex = selectedSizeIndex - 1
+            if selectedSizeIndex < 1 then selectedSizeIndex = #WINDOW_SIZES end
+            Options._updateSelection()
             return nil
-        elseif key == "right" then
-            currentSizeIndex = currentSizeIndex + 1
-            if currentSizeIndex > #WINDOW_SIZES then currentSizeIndex = 1 end
-            Options._selectSize(currentSizeIndex)
+        elseif KeyMap.isRight(key) then
+            selectedSizeIndex = selectedSizeIndex + 1
+            if selectedSizeIndex > #WINDOW_SIZES then selectedSizeIndex = 1 end
+            Options._updateSelection()
             return nil
         end
     end
 
-    if key == "return" or key == "kpenter" then
+    if KeyMap.isConfirm(key) then
         if row == "fullscreen" then
             Options._toggleFullscreen()
         elseif row == "size" and not isFullscreen then
-            -- Enter on size row cycles forward
-            currentSizeIndex = currentSizeIndex + 1
-            if currentSizeIndex > #WINDOW_SIZES then currentSizeIndex = 1 end
-            Options._selectSize(currentSizeIndex)
+            Options._selectSize(selectedSizeIndex)
         elseif row == "eternal" then
             Options._toggleEternal()
         elseif row == "back" then
@@ -332,7 +332,7 @@ function Options.keypressed(key)
         return nil
     end
 
-    if key == "escape" then
+    if KeyMap.isCancel(key) then
         Audio.saveVolumes()
         return "back"
     end
