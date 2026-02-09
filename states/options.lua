@@ -38,6 +38,7 @@ function Options.enter(f, isPaused)
     eternalMode = Save.readEternalMode()
     catMode = Save.readCatMode()
     Asteroid.setCatMode(catMode)
+    Stars.setCatMode(catMode)
     isFullscreen = love.window.getFullscreen()
 
     -- Detect current window size
@@ -279,6 +280,7 @@ function Options._toggleCatMode()
     catMode = not catMode
     Save.writeCatMode(catMode)
     Asteroid.setCatMode(catMode)
+    Stars.setCatMode(catMode)
     local bw = 300
     local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
     catModeBtn = Options._makeCatModeBtn(cx, 550, bw)

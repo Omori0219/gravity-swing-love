@@ -88,7 +88,9 @@ function love.load()
     highScore = Ranking.getHighScore()
 
     -- Restore cat mode
-    Asteroid.setCatMode(Save.readCatMode())
+    local savedCatMode = Save.readCatMode()
+    Asteroid.setCatMode(savedCatMode)
+    Stars.setCatMode(savedCatMode)
 
     -- Enter title state
     Audio.playBGM(true)

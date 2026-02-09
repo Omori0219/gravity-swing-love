@@ -2,6 +2,8 @@ local Settings = require("settings")
 
 local Stars = {}
 local bgImage = nil
+local bgImageNormal = nil
+local bgImageCat = nil
 local gravityShader = nil
 
 local shaderCode = [[
@@ -36,10 +38,20 @@ local shaderCode = [[
 function Stars.generate()
     local ok, img = pcall(love.graphics.newImage, "assets/images/space-retouch.png")
     if ok then
-        bgImage = img
-        bgImage:setFilter("linear", "linear")
+        bgImageNormal = img
+        bgImageNormal:setFilter("linear", "linear")
     end
+    local ok2, img2 = pcall(love.graphics.newImage, "assets/images/mode-cats/cats-space.png")
+    if ok2 then
+        bgImageCat = img2
+        bgImageCat:setFilter("linear", "linear")
+    end
+    bgImage = bgImageNormal
     gravityShader = love.graphics.newShader(shaderCode)
+end
+
+function Stars.setCatMode(enabled)
+    bgImage = enabled and bgImageCat or bgImageNormal
 end
 
 function Stars.draw(planetX, planetY)
