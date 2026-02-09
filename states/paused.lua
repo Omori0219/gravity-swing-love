@@ -49,20 +49,6 @@ function Paused.draw()
     resumeBtn:draw()
     quitBtn:draw()
 
-    -- Key hint next to selected button
-    love.graphics.setFont(fonts.tiny)
-    local kh = 20
-    local selBtn = buttons[selectedIndex]
-    local hkx = selBtn.x + selBtn.w + 12
-    local hky = selBtn.y + (selBtn.h - kh) / 2
-    local hkw = 56
-    love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
-    love.graphics.rectangle("line", hkx, hky, hkw, kh, 4, 4)
-    love.graphics.setColor(0.6, 0.6, 0.6, 0.8)
-    local enterLabel = "Enter"
-    local elw = fonts.tiny:getWidth(enterLabel)
-    love.graphics.print(enterLabel, hkx + (hkw - elw) / 2, hky + (kh - fonts.tiny:getHeight()) / 2)
-
     love.graphics.setColor(1, 1, 1, 1)
 end
 

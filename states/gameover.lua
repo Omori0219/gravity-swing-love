@@ -311,19 +311,6 @@ function drawResult()
     playAgainBtn:draw()
     titleBtn:draw()
 
-    -- Enter key hint next to selected button
-    local kh = 20
-    local selBtn = buttons[selectedIndex]
-    local kx = selBtn.x + selBtn.w + 12
-    local ky = selBtn.y + (selBtn.h - kh) / 2
-    local kw = 56
-    love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
-    love.graphics.rectangle("line", kx, ky, kw, kh, 4, 4)
-    love.graphics.setFont(fonts.tiny)
-    love.graphics.setColor(0.6, 0.6, 0.6, 0.8)
-    local label = "Enter"
-    local lw = fonts.tiny:getWidth(label)
-    love.graphics.print(label, kx + (kw - lw) / 2, ky + (kh - fonts.tiny:getHeight()) / 2)
 end
 
 function GameOver.textinput(text)

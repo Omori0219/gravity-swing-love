@@ -179,42 +179,6 @@ function Options.draw()
     -- Back button
     backBtn:draw()
 
-    -- Key hints
-    love.graphics.setFont(fonts.tiny)
-    local kh = 20
-
-    -- Enter hint next to selected row
-    local row = NAV_ROWS[selectedRow]
-    local selBtn
-    if row == "fullscreen" then selBtn = fullscreenBtn
-    elseif row == "size" then selBtn = sizeButtons[selectedSizeIndex]
-    elseif row == "eternal" then selBtn = eternalBtn
-    elseif row == "back" then selBtn = backBtn
-    end
-    if selBtn then
-        local hkx = selBtn.x + selBtn.w + 12
-        local hky = selBtn.y + (selBtn.h - kh) / 2
-        local hkw = 56
-        love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
-        love.graphics.rectangle("line", hkx, hky, hkw, kh, 4, 4)
-        love.graphics.setColor(0.6, 0.6, 0.6, 0.8)
-        local enterLabel = "Enter"
-        local elw = fonts.tiny:getWidth(enterLabel)
-        love.graphics.print(enterLabel, hkx + (hkw - elw) / 2, hky + (kh - fonts.tiny:getHeight()) / 2)
-    end
-
-    -- F11 hint next to Fullscreen (always show)
-    local fkx = fullscreenBtn.x + fullscreenBtn.w + 12
-    if row == "fullscreen" then fkx = fkx + 56 + 8 end  -- shift right if Enter hint shown
-    local fky = fullscreenBtn.y + (fullscreenBtn.h - kh) / 2
-    local fkw = 40
-    love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
-    love.graphics.rectangle("line", fkx, fky, fkw, kh, 4, 4)
-    love.graphics.setColor(0.6, 0.6, 0.6, 0.8)
-    local f11Label = "F11"
-    local f11w = fonts.tiny:getWidth(f11Label)
-    love.graphics.print(f11Label, fkx + (fkw - f11w) / 2, fky + (kh - fonts.tiny:getHeight()) / 2)
-
     love.graphics.setColor(1, 1, 1, 1)
 end
 
