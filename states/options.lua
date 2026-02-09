@@ -7,13 +7,16 @@ local Audio = require("systems.audio")
 local Save = require("lib.save")
 local KeyMap = require("ui.keymap")
 
+local Asteroid = require("entities.asteroid")
+
 local Options = {}
 
 local bgmSlider, sfxSlider
-local fullscreenBtn, eternalBtn, backBtn
+local fullscreenBtn, eternalBtn, catModeBtn, backBtn
 local sizeButtons = {}
 local fonts
 local eternalMode = false
+local catMode = false
 local isFullscreen = false
 
 local WINDOW_SIZES = {
@@ -24,13 +27,15 @@ local WINDOW_SIZES = {
 local currentSizeIndex = 2  -- default: 1200x900
 local selectedSizeIndex = 2 -- cursor position (may differ from currentSizeIndex)
 
--- Navigation: rows are "fullscreen", "size", "eternal", "back"
-local NAV_ROWS = { "fullscreen", "size", "eternal", "back" }
+-- Navigation: rows are "fullscreen", "size", "eternal", "catmode", "back"
+local NAV_ROWS = { "fullscreen", "size", "eternal", "catmode", "back" }
 local selectedRow = 1
 
 function Options.enter(f)
     fonts = f
     eternalMode = Save.readEternalMode()
+    catMode = Save.readCatMode()
+    Asteroid.setCatMode(catMode)
     isFullscreen = love.window.getFullscreen()
 
     -- Detect current window size
@@ -55,9 +60,10 @@ function Options.enter(f)
     selectedSizeIndex = currentSizeIndex
     Options._makeSizeButtons(410)
     eternalBtn = Options._makeEternalBtn(cx, 480, bw)
+    catModeBtn = Options._makeCatModeBtn(cx, 550, bw)
 
     local backW = 180
-    backBtn = Button.new("Back", Settings.CANVAS_WIDTH / 2 - backW / 2, 560, backW, 40, Settings.COLORS.GRAY, fonts.small)
+    backBtn = Button.new("Back", Settings.CANVAS_WIDTH / 2 - backW / 2, 630, backW, 40, Settings.COLORS.GRAY, fonts.small)
 
     selectedRow = 1
     Options._updateSelection()
@@ -104,11 +110,22 @@ function Options._makeEternalBtn(x, y, w)
     return btn
 end
 
+function Options._makeCatModeBtn(x, y, w)
+    local btn
+    if catMode then
+        btn = Button.new("Cat Mode: ON", x, y, w, 40, {0.9, 0.4, 0.6}, fonts.small)
+    else
+        btn = Button.new("Cat Mode: OFF", x, y, w, 40, {0.4, 0.4, 0.4}, fonts.small)
+    end
+    return btn
+end
+
 function Options._updateSelection()
     -- Clear all
     if fullscreenBtn then fullscreenBtn.selected = false end
     for _, btn in ipairs(sizeButtons) do btn.selected = false end
     if eternalBtn then eternalBtn.selected = false end
+    if catModeBtn then catModeBtn.selected = false end
     if backBtn then backBtn.selected = false end
 
     local row = NAV_ROWS[selectedRow]
@@ -120,6 +137,8 @@ function Options._updateSelection()
         end
     elseif row == "eternal" then
         if eternalBtn then eternalBtn.selected = true end
+    elseif row == "catmode" then
+        if catModeBtn then catModeBtn.selected = true end
     elseif row == "back" then
         if backBtn then backBtn.selected = true end
     end
@@ -134,6 +153,7 @@ function Options.update(dt)
         btn:updateHover(mx, my)
     end
     eternalBtn:updateHover(mx, my)
+    catModeBtn:updateHover(mx, my)
     backBtn:updateHover(mx, my)
 
     -- Apply volume changes in real time
@@ -176,6 +196,9 @@ function Options.draw()
     -- Eternal mode toggle
     eternalBtn:draw()
 
+    -- Cat mode toggle
+    catModeBtn:draw()
+
     -- Back button
     backBtn:draw()
 
@@ -204,6 +227,11 @@ function Options.mousepressed(x, y, button)
     if button == 1 and eternalBtn:isClicked(x, y) then
         Audio.playConfirm()
         Options._toggleEternal()
+    end
+
+    if button == 1 and catModeBtn:isClicked(x, y) then
+        Audio.playConfirm()
+        Options._toggleCatMode()
     end
 
     if button == 1 and backBtn:isClicked(x, y) then
@@ -239,6 +267,16 @@ function Options._toggleEternal()
     local bw = 300
     local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
     eternalBtn = Options._makeEternalBtn(cx, 480, bw)
+    Options._updateSelection()
+end
+
+function Options._toggleCatMode()
+    catMode = not catMode
+    Save.writeCatMode(catMode)
+    Asteroid.setCatMode(catMode)
+    local bw = 300
+    local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
+    catModeBtn = Options._makeCatModeBtn(cx, 550, bw)
     Options._updateSelection()
 end
 
@@ -298,6 +336,8 @@ function Options.keypressed(key)
             Options._selectSize(selectedSizeIndex)
         elseif row == "eternal" then
             Options._toggleEternal()
+        elseif row == "catmode" then
+            Options._toggleCatMode()
         elseif row == "back" then
             Audio.saveVolumes()
             return "back"

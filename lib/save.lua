@@ -52,6 +52,17 @@ function Save.readEternalMode()
     return false
 end
 
+function Save.writeCatMode(isEnabled)
+    love.filesystem.write(Settings.CAT_MODE_FILE, isEnabled and "1" or "0")
+end
+
+function Save.readCatMode()
+    if love.filesystem.getInfo(Settings.CAT_MODE_FILE) then
+        return love.filesystem.read(Settings.CAT_MODE_FILE) == "1"
+    end
+    return false
+end
+
 function Save.writeDisplay(fullscreen, windowW, windowH)
     love.filesystem.write("display.dat", string.format("%s,%d,%d",
         fullscreen and "1" or "0", windowW, windowH))

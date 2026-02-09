@@ -6,6 +6,7 @@ local Planet = require("entities.planet")
 local Enemy = require("entities.enemy")
 local Save = require("lib.save")
 local Ranking = require("lib.ranking")
+local Asteroid = require("entities.asteroid")
 local Particles = require("systems.particles")
 local ScreenShake = require("systems.screenshake")
 local HUD = require("ui.hud")
@@ -84,6 +85,9 @@ function love.load()
     end
 
     highScore = Ranking.getHighScore()
+
+    -- Restore cat mode
+    Asteroid.setCatMode(Save.readCatMode())
 
     -- Enter title state
     Audio.playBGM(true)

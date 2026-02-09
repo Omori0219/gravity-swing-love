@@ -3,6 +3,24 @@ local Settings = require("settings")
 local Asteroid = {}
 
 local lastEdge = 0
+local catMode = false
+local catImage = nil
+
+function Asteroid.setCatMode(enabled)
+    catMode = enabled
+    if enabled and not catImage then
+        Asteroid._loadCatImage()
+    end
+end
+
+function Asteroid.isCatMode()
+    return catMode
+end
+
+function Asteroid._loadCatImage()
+    catImage = love.graphics.newImage("assets/images/mode-cats/nyan-cat.png")
+    catImage:setFilter("nearest", "nearest")
+end
 
 function Asteroid.new()
     local W = Settings.CANVAS_WIDTH
@@ -95,7 +113,18 @@ function Asteroid.draw(asteroid, comboLevel)
     end
 
     if not asteroid.dying then
-        if appearance.type == "solid" then
+        if catMode and catImage then
+            -- Cat mode: draw nyan cat, flip horizontally based on direction
+            local imgW, imgH = catImage:getDimensions()
+            local drawScale = (asteroid.radius * 3) / imgH
+            local sx = asteroid.vx >= 0 and drawScale or -drawScale
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.draw(catImage,
+                asteroid.x, asteroid.y,
+                0,
+                sx, drawScale,
+                imgW / 2, imgH / 2)
+        elseif appearance.type == "solid" then
             love.graphics.setColor(mainColor)
             love.graphics.circle("fill", asteroid.x, asteroid.y, asteroid.radius)
         elseif appearance.type == "gradient" then
