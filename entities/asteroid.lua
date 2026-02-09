@@ -138,7 +138,9 @@ function Asteroid.updateTrail(asteroid)
         table.remove(asteroid.trail, 1)
     else
         table.insert(asteroid.trail, {x = asteroid.x, y = asteroid.y})
-        if #asteroid.trail > Settings.ASTEROID_TRAIL_LENGTH then
+        local maxLen = Settings.ASTEROID_TRAIL_LENGTH
+        if catMode then maxLen = math.floor(maxLen * 1.5) end
+        if #asteroid.trail > maxLen then
             table.remove(asteroid.trail, 1)
         end
     end
@@ -211,18 +213,44 @@ function Asteroid.draw(asteroid, comboLevel)
 
     -- Trail
     if #asteroid.trail > 1 then
-        local r = mainColor[1] or 1
-        local g = mainColor[2] or 1
-        local b = mainColor[3] or 1
-        love.graphics.setColor(r, g, b, 0.5)
-        love.graphics.setLineWidth(asteroid.radius * 0.56)
-        local points = {}
-        for _, p in ipairs(asteroid.trail) do
-            table.insert(points, p.x)
-            table.insert(points, p.y)
-        end
-        if #points >= 4 then
-            love.graphics.line(points)
+        local lineW = asteroid.radius * 0.56
+        if catMode then lineW = lineW * 3 end
+        love.graphics.setLineWidth(lineW)
+
+        local isMaxCombo = catMode and (comboLevel + 1 >= #Settings.ASTEROID_APPEARANCE)
+
+        if isMaxCombo then
+            -- Rainbow trail: draw each segment with a different color
+            local rainbow = {
+                {1, 0, 0},       -- red
+                {1, 0.5, 0},     -- orange
+                {1, 1, 0},       -- yellow
+                {0, 1, 0},       -- green
+                {0, 0.5, 1},     -- blue
+                {0.3, 0, 1},     -- indigo
+                {0.6, 0, 1},     -- violet
+            }
+            for i = 1, #asteroid.trail - 1 do
+                local p1 = asteroid.trail[i]
+                local p2 = asteroid.trail[i + 1]
+                local ci = (i % #rainbow) + 1
+                local c = rainbow[ci]
+                love.graphics.setColor(c[1], c[2], c[3], 0.8)
+                love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+            end
+        else
+            local r = mainColor[1] or 1
+            local g = mainColor[2] or 1
+            local b = mainColor[3] or 1
+            love.graphics.setColor(r, g, b, 0.5)
+            local points = {}
+            for _, p in ipairs(asteroid.trail) do
+                table.insert(points, p.x)
+                table.insert(points, p.y)
+            end
+            if #points >= 4 then
+                love.graphics.line(points)
+            end
         end
         love.graphics.setLineWidth(1)
     end
