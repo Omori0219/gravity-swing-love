@@ -215,6 +215,9 @@ function Playing.draw()
     -- Kill feed
     HUD.drawKillFeed(currentChainKills, fonts.killFeed)
 
+    -- Combo counter
+    HUD.drawCombo(consecutiveHits, fonts.small)
+
     -- Timer display for timed mode
     if gameMode == "timed" then
         HUD.drawTimer(timeRemaining, fonts)

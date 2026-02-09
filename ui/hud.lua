@@ -58,6 +58,25 @@ function HUD.drawKillFeed(destroyedPlanets, font)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
+function HUD.drawCombo(combo, font)
+    if combo < 2 then return end
+    love.graphics.setFont(font)
+    local text = "x" .. combo
+    local tw = font:getWidth(text)
+    local x = Settings.CANVAS_WIDTH - tw - 16
+    local y = 36
+
+    local Asteroid = require("entities.asteroid")
+    local appearance = Asteroid.getAppearance(combo)
+    if appearance.type == "solid" then
+        love.graphics.setColor(appearance.color[1], appearance.color[2], appearance.color[3], 1)
+    else
+        love.graphics.setColor(appearance.colors[1][1], appearance.colors[1][2], appearance.colors[1][3], 1)
+    end
+    love.graphics.print(text, x, y)
+    love.graphics.setColor(1, 1, 1, 1)
+end
+
 function HUD.drawMuteIndicator(font)
     love.graphics.setFont(font)
     love.graphics.setColor(1, 1, 1, 0.4)
