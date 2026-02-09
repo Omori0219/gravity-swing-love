@@ -1,4 +1,5 @@
 local Settings = require("settings")
+local Audio = require("systems.audio")
 
 local Ready = {}
 local fonts
@@ -67,6 +68,7 @@ end
 
 function Ready.mousepressed(x, y, button)
     if button == 1 then
+        Audio.playConfirm()
         return "start"
     end
     return nil
@@ -74,6 +76,7 @@ end
 
 function Ready.keypressed(key)
     if key == "space" or key == "return" then
+        Audio.playConfirm()
         return "start"
     end
     return nil

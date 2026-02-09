@@ -2,6 +2,7 @@ local Settings = require("settings")
 local Stars = require("systems.stars")
 local Button = require("ui.button")
 local KeyMap = require("ui.keymap")
+local Audio = require("systems.audio")
 
 local Title = {}
 
@@ -123,9 +124,11 @@ end
 function Title.mousepressed(x, y, button)
     if button == 1 then
         if startBtn:isClicked(x, y) then
+            Audio.playConfirm()
             return "play"
         end
         if optionsBtn:isClicked(x, y) then
+            Audio.playConfirm()
             return "options"
         end
     end
@@ -137,15 +140,18 @@ function Title.keypressed(key)
         selectedIndex = selectedIndex - 1
         if selectedIndex < 1 then selectedIndex = #buttons end
         Title._updateSelection()
+        Audio.playCursor()
         return nil
     elseif KeyMap.isDown(key) then
         selectedIndex = selectedIndex + 1
         if selectedIndex > #buttons then selectedIndex = 1 end
         Title._updateSelection()
+        Audio.playCursor()
         return nil
     end
 
     if KeyMap.isConfirm(key) then
+        Audio.playConfirm()
         if selectedIndex == 1 then return "play" end
         if selectedIndex == 2 then return "options" end
     end

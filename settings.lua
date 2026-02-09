@@ -134,6 +134,15 @@ Settings.HIT_SOUND_DURATION = 0.15
 Settings.GAMEOVER_SOUND_PITCH = 65.41         -- C2 in Hz
 Settings.GAMEOVER_SOUND_DURATION = 1.5
 
+-- UI sound effects
+Settings.UI_CURSOR_PITCH = 880               -- A5 in Hz
+Settings.UI_CURSOR_DURATION = 0.04
+Settings.UI_CONFIRM_PITCH1 = 523.25          -- C5 in Hz
+Settings.UI_CONFIRM_PITCH2 = 784             -- G5 in Hz
+Settings.UI_CONFIRM_DURATION = 0.12
+Settings.UI_CANCEL_PITCH = 330               -- E4 in Hz
+Settings.UI_CANCEL_DURATION = 0.08
+
 -- Save keys
 Settings.HIGH_SCORE_FILE = "highscore.dat"
 Settings.MUTE_STATE_FILE = "mutestate.dat"

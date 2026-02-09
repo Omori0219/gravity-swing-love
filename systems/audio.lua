@@ -5,6 +5,9 @@ local Audio = {}
 Audio.bgm = nil
 Audio.hitSound = nil
 Audio.gameOverSound = nil
+Audio.cursorSound = nil
+Audio.confirmSound = nil
+Audio.cancelSound = nil
 Audio.isMuted = false
 Audio.initialized = false
 Audio.bgmVolume = 0.5      -- 0.0 ~ 1.0
@@ -38,6 +41,80 @@ local function generateTriangleWave(frequency, duration, sampleRate)
         end
 
         soundData:setSample(i, value * env * 0.5)
+    end
+    return soundData
+end
+
+local function generatePulseWave(frequency, duration, sampleRate, duty)
+    duty = duty or 0.25
+    local samples = math.floor(sampleRate * duration)
+    local soundData = love.sound.newSoundData(samples, sampleRate, 16, 1)
+
+    for i = 0, samples - 1 do
+        local t = i / sampleRate
+        local phase = (t * frequency) % 1
+        local value = phase < duty and 1 or -1
+
+        -- Quick decay envelope
+        local env = math.max(0, 1.0 - t / duration)
+
+        -- Fade edges to prevent click
+        if i < 30 then
+            env = env * i / 30
+        elseif i > samples - 30 then
+            env = env * (samples - i) / 30
+        end
+
+        soundData:setSample(i, value * env * 0.3)
+    end
+    return soundData
+end
+
+local function generateTwoToneTriangle(pitch1, pitch2, duration, sampleRate)
+    local samples = math.floor(sampleRate * duration)
+    local soundData = love.sound.newSoundData(samples, sampleRate, 16, 1)
+    local half = samples / 2
+
+    for i = 0, samples - 1 do
+        local t = i / sampleRate
+        local freq = i < half and pitch1 or pitch2
+        local phase = (t * freq) % 1
+        local value = 2 * math.abs(2 * phase - 1) - 1
+
+        -- Envelope: quick attack, sustain, quick release
+        local env = 1.0
+        if i < 30 then
+            env = i / 30
+        elseif i > samples - 60 then
+            env = (samples - i) / 60
+        end
+
+        soundData:setSample(i, value * env * 0.4)
+    end
+    return soundData
+end
+
+local function generateDescendingTriangle(startFreq, duration, sampleRate)
+    local samples = math.floor(sampleRate * duration)
+    local soundData = love.sound.newSoundData(samples, sampleRate, 16, 1)
+
+    local phaseAccum = 0
+    for i = 0, samples - 1 do
+        local t = i / sampleRate
+        local freq = startFreq * (1.0 - t / duration * 0.5)
+        phaseAccum = phaseAccum + freq / sampleRate
+        local phase = phaseAccum % 1
+        local value = 2 * math.abs(2 * phase - 1) - 1
+
+        local env = math.max(0, 1.0 - t / duration)
+
+        if i < 30 then
+            env = env * i / 30
+        elseif i > samples - 30 then
+            env = env * (samples - i) / 30
+        end
+
+        soundData:setSample(i, value * env * 0.35)
     end
     return soundData
 end
@@ -91,6 +168,16 @@ function Audio.init()
     local goData = generateSawtoothWave(Settings.GAMEOVER_SOUND_PITCH, Settings.GAMEOVER_SOUND_DURATION, 44100)
     Audio.gameOverSound = love.audio.newSource(goData)
 
+    -- UI sounds
+    local cursorData = generatePulseWave(Settings.UI_CURSOR_PITCH, Settings.UI_CURSOR_DURATION, 44100, 0.25)
+    Audio.cursorSound = love.audio.newSource(cursorData)
+
+    local confirmData = generateTwoToneTriangle(Settings.UI_CONFIRM_PITCH1, Settings.UI_CONFIRM_PITCH2, Settings.UI_CONFIRM_DURATION, 44100)
+    Audio.confirmSound = love.audio.newSource(confirmData)
+
+    local cancelData = generateDescendingTriangle(Settings.UI_CANCEL_PITCH, Settings.UI_CANCEL_DURATION, 44100)
+    Audio.cancelSound = love.audio.newSource(cancelData)
+
     -- Load saved state
     Audio.isMuted = Save.readMuteState()
     local volumes = Save.readVolumes()
@@ -131,6 +218,27 @@ function Audio.playGameOver()
     Audio.gameOverSound:setVolume(Audio.sfxVolume)
     Audio.gameOverSound:stop()
     Audio.gameOverSound:play()
+end
+
+function Audio.playCursor()
+    if not Audio.initialized or Audio.isMuted or not Audio.cursorSound then return end
+    Audio.cursorSound:setVolume(Audio.sfxVolume)
+    Audio.cursorSound:stop()
+    Audio.cursorSound:play()
+end
+
+function Audio.playConfirm()
+    if not Audio.initialized or Audio.isMuted or not Audio.confirmSound then return end
+    Audio.confirmSound:setVolume(Audio.sfxVolume)
+    Audio.confirmSound:stop()
+    Audio.confirmSound:play()
+end
+
+function Audio.playCancel()
+    if not Audio.initialized or Audio.isMuted or not Audio.cancelSound then return end
+    Audio.cancelSound:setVolume(Audio.sfxVolume)
+    Audio.cancelSound:stop()
+    Audio.cancelSound:play()
 end
 
 function Audio.toggleMute()

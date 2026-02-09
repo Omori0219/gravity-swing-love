@@ -156,9 +156,11 @@ function love.keypressed(key)
 
     if key == "escape" then
         if currentState == "ready" then
+            Audio.playCancel()
             switchToTitle()
             return
         elseif currentState == "options" then
+            Audio.playCancel()
             Audio.saveVolumes()
             switchToTitle()
             return
@@ -166,10 +168,12 @@ function love.keypressed(key)
             switchToPaused()
             return
         elseif currentState == "paused" then
+            Audio.playCancel()
             switchToResume()
             return
         elseif currentState == "gameover" then
             if GameOver.getPhase() == "result" then
+                Audio.playCancel()
                 switchToTitle()
             end
             return

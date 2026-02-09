@@ -1,6 +1,7 @@
 local Settings = require("settings")
 local Button = require("ui.button")
 local KeyMap = require("ui.keymap")
+local Audio = require("systems.audio")
 
 local Paused = {}
 local fonts
@@ -57,20 +58,24 @@ function Paused.keypressed(key)
         selectedIndex = selectedIndex - 1
         if selectedIndex < 1 then selectedIndex = #buttons end
         Paused._updateSelection()
+        Audio.playCursor()
         return nil
     elseif KeyMap.isDown(key) then
         selectedIndex = selectedIndex + 1
         if selectedIndex > #buttons then selectedIndex = 1 end
         Paused._updateSelection()
+        Audio.playCursor()
         return nil
     end
 
     if KeyMap.isConfirm(key) then
+        Audio.playConfirm()
         if selectedIndex == 1 then return "resume" end
         if selectedIndex == 2 then return "quit" end
     end
 
     if KeyMap.isCancel(key) then
+        Audio.playCancel()
         return "resume"
     end
     return nil
@@ -78,9 +83,11 @@ end
 
 function Paused.mousepressed(x, y, button)
     if button == 1 and resumeBtn:isClicked(x, y) then
+        Audio.playConfirm()
         return "resume"
     end
     if button == 1 and quitBtn:isClicked(x, y) then
+        Audio.playConfirm()
         return "quit"
     end
     return nil

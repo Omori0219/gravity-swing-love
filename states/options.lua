@@ -187,12 +187,14 @@ function Options.mousepressed(x, y, button)
     sfxSlider:mousepressed(x, y, button)
 
     if button == 1 and fullscreenBtn:isClicked(x, y) then
+        Audio.playConfirm()
         Options._toggleFullscreen()
     end
 
     if button == 1 and not isFullscreen then
         for i, btn in ipairs(sizeButtons) do
             if btn:isClicked(x, y) then
+                Audio.playConfirm()
                 Options._selectSize(i)
                 break
             end
@@ -200,10 +202,12 @@ function Options.mousepressed(x, y, button)
     end
 
     if button == 1 and eternalBtn:isClicked(x, y) then
+        Audio.playConfirm()
         Options._toggleEternal()
     end
 
     if button == 1 and backBtn:isClicked(x, y) then
+        Audio.playCancel()
         Audio.saveVolumes()
         return "back"
     end
@@ -258,11 +262,13 @@ function Options.keypressed(key)
         selectedRow = selectedRow - 1
         if selectedRow < 1 then selectedRow = #NAV_ROWS end
         Options._updateSelection()
+        Audio.playCursor()
         return nil
     elseif KeyMap.isDown(key) then
         selectedRow = selectedRow + 1
         if selectedRow > #NAV_ROWS then selectedRow = 1 end
         Options._updateSelection()
+        Audio.playCursor()
         return nil
     end
 
@@ -273,16 +279,19 @@ function Options.keypressed(key)
             selectedSizeIndex = selectedSizeIndex - 1
             if selectedSizeIndex < 1 then selectedSizeIndex = #WINDOW_SIZES end
             Options._updateSelection()
+            Audio.playCursor()
             return nil
         elseif KeyMap.isRight(key) then
             selectedSizeIndex = selectedSizeIndex + 1
             if selectedSizeIndex > #WINDOW_SIZES then selectedSizeIndex = 1 end
             Options._updateSelection()
+            Audio.playCursor()
             return nil
         end
     end
 
     if KeyMap.isConfirm(key) then
+        Audio.playConfirm()
         if row == "fullscreen" then
             Options._toggleFullscreen()
         elseif row == "size" and not isFullscreen then
@@ -297,6 +306,7 @@ function Options.keypressed(key)
     end
 
     if KeyMap.isCancel(key) then
+        Audio.playCancel()
         Audio.saveVolumes()
         return "back"
     end

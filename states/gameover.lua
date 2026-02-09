@@ -2,6 +2,7 @@ local Settings = require("settings")
 local Button = require("ui.button")
 local HUD = require("ui.hud")
 local KeyMap = require("ui.keymap")
+local Audio = require("systems.audio")
 
 local GameOver = {}
 
@@ -332,6 +333,7 @@ function GameOver.keypressed(key)
             return nil
         elseif key == "return" or key == "kpenter" then
             if #inputName >= MIN_NAME_LEN then
+                Audio.playConfirm()
                 phase = "result"
                 selectedIndex = 1
                 GameOver._updateSelection()
@@ -347,15 +349,18 @@ function GameOver.keypressed(key)
         selectedIndex = selectedIndex - 1
         if selectedIndex < 1 then selectedIndex = #buttons end
         GameOver._updateSelection()
+        Audio.playCursor()
         return nil
     elseif KeyMap.isDown(key) then
         selectedIndex = selectedIndex + 1
         if selectedIndex > #buttons then selectedIndex = 1 end
         GameOver._updateSelection()
+        Audio.playCursor()
         return nil
     end
 
     if KeyMap.isConfirm(key) then
+        Audio.playConfirm()
         if selectedIndex == 1 then return "play" end
         if selectedIndex == 2 then return "title" end
     end
@@ -367,8 +372,10 @@ function GameOver.mousepressed(x, y, button)
 
     if button == 1 then
         if playAgainBtn:isClicked(x, y) then
+            Audio.playConfirm()
             return "play"
         elseif titleBtn:isClicked(x, y) then
+            Audio.playConfirm()
             return "title"
         end
     end
