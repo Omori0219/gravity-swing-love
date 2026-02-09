@@ -103,9 +103,12 @@ function Audio.init()
     Audio.initialized = true
 end
 
-function Audio.playBGM()
+function Audio.playBGM(fromStart)
     if not Audio.initialized or Audio.isMuted or not Audio.bgm then return end
-    if not Audio.bgm:isPlaying() then
+    if fromStart then
+        Audio.bgm:stop()
+        Audio.bgm:play()
+    elseif not Audio.bgm:isPlaying() then
         Audio.bgm:play()
     end
 end

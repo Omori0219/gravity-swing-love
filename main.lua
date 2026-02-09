@@ -81,6 +81,7 @@ function love.load()
     highScore = Ranking.getHighScore()
 
     -- Enter title state
+    Audio.playBGM(true)
     Title.enter(fonts, Ranking.getList())
 end
 
@@ -285,7 +286,7 @@ end
 function switchToTitle()
     currentState = "title"
     love.mouse.setVisible(true)
-    Audio.stopBGM()
+    Audio.playBGM(true)
     Particles.clear()
     Title.enter(fonts, Ranking.getList())
 end
