@@ -43,6 +43,10 @@ function love.load()
         push:switchFullscreen()
     end
 
+    -- Window icon
+    local iconData = love.image.newImageData("assets/icon.png")
+    love.window.setIcon(iconData)
+
     -- Override love.mouse.getPosition to return game-space coordinates
     -- This way all existing code using love.mouse.getPosition() just works
     local _originalGetPosition = love.mouse.getPosition
