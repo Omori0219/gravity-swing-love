@@ -22,6 +22,10 @@ local WINDOW_SIZES = {
 }
 local currentSizeIndex = 2  -- default: 1200x900
 
+-- Navigation: rows are "fullscreen", "size", "eternal", "back"
+local NAV_ROWS = { "fullscreen", "size", "eternal", "back" }
+local selectedRow = 1
+
 function Options.enter(f)
     fonts = f
     eternalMode = Save.readEternalMode()
@@ -51,6 +55,9 @@ function Options.enter(f)
 
     local backW = 180
     backBtn = Button.new("Back", Settings.CANVAS_WIDTH / 2 - backW / 2, 560, backW, 40, Settings.COLORS.GRAY, fonts.small)
+
+    selectedRow = 1
+    Options._updateSelection()
 end
 
 function Options._makeFullscreenBtn(x, y, w)
@@ -59,6 +66,7 @@ function Options._makeFullscreenBtn(x, y, w)
     else
         fullscreenBtn = Button.new("Fullscreen: OFF", x, y, w, 40, {0.4, 0.4, 0.4}, fonts.small)
     end
+    Options._updateSelection()
 end
 
 function Options._makeSizeButtons(y)
@@ -80,13 +88,37 @@ function Options._makeSizeButtons(y)
         end
         sizeButtons[i] = Button.new(size.label, x, y, btnW, 36, color, fonts.tiny)
     end
+    Options._updateSelection()
 end
 
 function Options._makeEternalBtn(x, y, w)
+    local btn
     if eternalMode then
-        return Button.new("Eternal Mode: ON", x, y, w, 40, {0.9, 0.55, 0.1}, fonts.small)
+        btn = Button.new("Eternal Mode: ON", x, y, w, 40, {0.9, 0.55, 0.1}, fonts.small)
     else
-        return Button.new("Eternal Mode: OFF", x, y, w, 40, {0.4, 0.4, 0.4}, fonts.small)
+        btn = Button.new("Eternal Mode: OFF", x, y, w, 40, {0.4, 0.4, 0.4}, fonts.small)
+    end
+    return btn
+end
+
+function Options._updateSelection()
+    -- Clear all
+    if fullscreenBtn then fullscreenBtn.selected = false end
+    for _, btn in ipairs(sizeButtons) do btn.selected = false end
+    if eternalBtn then eternalBtn.selected = false end
+    if backBtn then backBtn.selected = false end
+
+    local row = NAV_ROWS[selectedRow]
+    if row == "fullscreen" then
+        if fullscreenBtn then fullscreenBtn.selected = true end
+    elseif row == "size" then
+        if sizeButtons[currentSizeIndex] then
+            sizeButtons[currentSizeIndex].selected = true
+        end
+    elseif row == "eternal" then
+        if eternalBtn then eternalBtn.selected = true end
+    elseif row == "back" then
+        if backBtn then backBtn.selected = true end
     end
 end
 
@@ -144,21 +176,33 @@ function Options.draw()
     -- Back button
     backBtn:draw()
 
-    -- Esc key hint next to Back
+    -- Key hints
     love.graphics.setFont(fonts.tiny)
     local kh = 20
-    local kx = backBtn.x + backBtn.w + 12
-    local ky = backBtn.y + (backBtn.h - kh) / 2
-    local kw = 40
-    love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
-    love.graphics.rectangle("line", kx, ky, kw, kh, 4, 4)
-    love.graphics.setColor(0.6, 0.6, 0.6, 0.8)
-    local escLabel = "Esc"
-    local elw = fonts.tiny:getWidth(escLabel)
-    love.graphics.print(escLabel, kx + (kw - elw) / 2, ky + (kh - fonts.tiny:getHeight()) / 2)
 
-    -- F11 key hint next to Fullscreen
+    -- Enter hint next to selected row
+    local row = NAV_ROWS[selectedRow]
+    local selBtn
+    if row == "fullscreen" then selBtn = fullscreenBtn
+    elseif row == "size" then selBtn = sizeButtons[currentSizeIndex]
+    elseif row == "eternal" then selBtn = eternalBtn
+    elseif row == "back" then selBtn = backBtn
+    end
+    if selBtn then
+        local hkx = selBtn.x + selBtn.w + 12
+        local hky = selBtn.y + (selBtn.h - kh) / 2
+        local hkw = 56
+        love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
+        love.graphics.rectangle("line", hkx, hky, hkw, kh, 4, 4)
+        love.graphics.setColor(0.6, 0.6, 0.6, 0.8)
+        local enterLabel = "Enter"
+        local elw = fonts.tiny:getWidth(enterLabel)
+        love.graphics.print(enterLabel, hkx + (hkw - elw) / 2, hky + (kh - fonts.tiny:getHeight()) / 2)
+    end
+
+    -- F11 hint next to Fullscreen (always show)
     local fkx = fullscreenBtn.x + fullscreenBtn.w + 12
+    if row == "fullscreen" then fkx = fkx + 56 + 8 end  -- shift right if Enter hint shown
     local fky = fullscreenBtn.y + (fullscreenBtn.h - kh) / 2
     local fkw = 40
     love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
@@ -176,35 +220,20 @@ function Options.mousepressed(x, y, button)
     sfxSlider:mousepressed(x, y, button)
 
     if button == 1 and fullscreenBtn:isClicked(x, y) then
-        push:switchFullscreen()
-        isFullscreen = love.window.getFullscreen()
-        local bw = 300
-        local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
-        Options._makeFullscreenBtn(cx, 350, bw)
-        Options._makeSizeButtons(410)
-        Options._saveDisplay()
+        Options._toggleFullscreen()
     end
 
     if button == 1 and not isFullscreen then
         for i, btn in ipairs(sizeButtons) do
             if btn:isClicked(x, y) then
-                currentSizeIndex = i
-                local size = WINDOW_SIZES[i]
-                love.window.setMode(size.w, size.h, { resizable = true, highdpi = true })
-                push:resize(size.w, size.h)
-                Options._makeSizeButtons(410)
-                Options._saveDisplay()
+                Options._selectSize(i)
                 break
             end
         end
     end
 
     if button == 1 and eternalBtn:isClicked(x, y) then
-        eternalMode = not eternalMode
-        Save.writeEternalMode(eternalMode)
-        local bw = 300
-        local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
-        eternalBtn = Options._makeEternalBtn(cx, 480, bw)
+        Options._toggleEternal()
     end
 
     if button == 1 and backBtn:isClicked(x, y) then
@@ -212,6 +241,34 @@ function Options.mousepressed(x, y, button)
         return "back"
     end
     return nil
+end
+
+function Options._toggleFullscreen()
+    push:switchFullscreen()
+    isFullscreen = love.window.getFullscreen()
+    local bw = 300
+    local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
+    Options._makeFullscreenBtn(cx, 350, bw)
+    Options._makeSizeButtons(410)
+    Options._saveDisplay()
+end
+
+function Options._selectSize(i)
+    currentSizeIndex = i
+    local size = WINDOW_SIZES[i]
+    love.window.setMode(size.w, size.h, { resizable = true, highdpi = true })
+    push:resize(size.w, size.h)
+    Options._makeSizeButtons(410)
+    Options._saveDisplay()
+end
+
+function Options._toggleEternal()
+    eternalMode = not eternalMode
+    Save.writeEternalMode(eternalMode)
+    local bw = 300
+    local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
+    eternalBtn = Options._makeEternalBtn(cx, 480, bw)
+    Options._updateSelection()
 end
 
 function Options._saveDisplay()
@@ -230,6 +287,51 @@ function Options.mousereleased(x, y, button)
 end
 
 function Options.keypressed(key)
+    if key == "up" then
+        selectedRow = selectedRow - 1
+        if selectedRow < 1 then selectedRow = #NAV_ROWS end
+        Options._updateSelection()
+        return nil
+    elseif key == "down" then
+        selectedRow = selectedRow + 1
+        if selectedRow > #NAV_ROWS then selectedRow = 1 end
+        Options._updateSelection()
+        return nil
+    end
+
+    -- Left/right for size row
+    local row = NAV_ROWS[selectedRow]
+    if row == "size" and not isFullscreen then
+        if key == "left" then
+            currentSizeIndex = currentSizeIndex - 1
+            if currentSizeIndex < 1 then currentSizeIndex = #WINDOW_SIZES end
+            Options._selectSize(currentSizeIndex)
+            return nil
+        elseif key == "right" then
+            currentSizeIndex = currentSizeIndex + 1
+            if currentSizeIndex > #WINDOW_SIZES then currentSizeIndex = 1 end
+            Options._selectSize(currentSizeIndex)
+            return nil
+        end
+    end
+
+    if key == "return" or key == "kpenter" then
+        if row == "fullscreen" then
+            Options._toggleFullscreen()
+        elseif row == "size" and not isFullscreen then
+            -- Enter on size row cycles forward
+            currentSizeIndex = currentSizeIndex + 1
+            if currentSizeIndex > #WINDOW_SIZES then currentSizeIndex = 1 end
+            Options._selectSize(currentSizeIndex)
+        elseif row == "eternal" then
+            Options._toggleEternal()
+        elseif row == "back" then
+            Audio.saveVolumes()
+            return "back"
+        end
+        return nil
+    end
+
     if key == "escape" then
         Audio.saveVolumes()
         return "back"

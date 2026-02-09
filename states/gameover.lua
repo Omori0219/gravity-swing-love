@@ -17,6 +17,10 @@ local MIN_NAME_LEN = 3
 local cursorBlink    -- timer for cursor blink
 local qualified      -- whether score qualified for ranking
 
+-- Navigation
+local buttons = {}
+local selectedIndex = 1
+
 function GameOver.enter(f, data)
     fonts = f
     scoreData = data or {}
@@ -34,6 +38,15 @@ function GameOver.enter(f, data)
     local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
     playAgainBtn = Button.new("Play Again", cx, 410, bw, bh, Settings.COLORS.GREEN, fonts.medium)
     titleBtn = Button.new("Title", cx, 465, bw, bh, Settings.COLORS.GRAY, fonts.medium)
+    buttons = { playAgainBtn, titleBtn }
+    selectedIndex = 1
+    GameOver._updateSelection()
+end
+
+function GameOver._updateSelection()
+    for i, btn in ipairs(buttons) do
+        btn.selected = (i == selectedIndex)
+    end
 end
 
 function GameOver.update(dt)
@@ -297,10 +310,12 @@ function drawResult()
     playAgainBtn:draw()
     titleBtn:draw()
 
-    -- Enter key hint next to Play Again
-    local kx = playAgainBtn.x + playAgainBtn.w + 12
-    local ky = playAgainBtn.y + (playAgainBtn.h - 20) / 2
-    local kw, kh = 56, 20
+    -- Enter key hint next to selected button
+    local kh = 20
+    local selBtn = buttons[selectedIndex]
+    local kx = selBtn.x + selBtn.w + 12
+    local ky = selBtn.y + (selBtn.h - kh) / 2
+    local kw = 56
     love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
     love.graphics.rectangle("line", kx, ky, kw, kh, 4, 4)
     love.graphics.setFont(fonts.tiny)
@@ -308,17 +323,6 @@ function drawResult()
     local label = "Enter"
     local lw = fonts.tiny:getWidth(label)
     love.graphics.print(label, kx + (kw - lw) / 2, ky + (kh - fonts.tiny:getHeight()) / 2)
-
-    -- Esc key hint next to Title
-    local ex = titleBtn.x + titleBtn.w + 12
-    local ey = titleBtn.y + (titleBtn.h - 20) / 2
-    local ew = 40
-    love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
-    love.graphics.rectangle("line", ex, ey, ew, kh, 4, 4)
-    love.graphics.setColor(0.6, 0.6, 0.6, 0.8)
-    local escLabel = "Esc"
-    local elw = fonts.tiny:getWidth(escLabel)
-    love.graphics.print(escLabel, ex + (ew - elw) / 2, ey + (kh - fonts.tiny:getHeight()) / 2)
 end
 
 function GameOver.textinput(text)
@@ -342,6 +346,8 @@ function GameOver.keypressed(key)
             if #inputName >= MIN_NAME_LEN then
                 -- Confirm name - return special action with name
                 phase = "result"
+                selectedIndex = 1
+                GameOver._updateSelection()
                 return "name_confirmed", inputName
             end
             return nil
@@ -350,8 +356,25 @@ function GameOver.keypressed(key)
         return nil
     end
 
-    -- Result phase
-    if key == "space" or key == "return" then
+    -- Result phase: navigation
+    if key == "up" then
+        selectedIndex = selectedIndex - 1
+        if selectedIndex < 1 then selectedIndex = #buttons end
+        GameOver._updateSelection()
+        return nil
+    elseif key == "down" then
+        selectedIndex = selectedIndex + 1
+        if selectedIndex > #buttons then selectedIndex = 1 end
+        GameOver._updateSelection()
+        return nil
+    end
+
+    if key == "return" or key == "kpenter" then
+        if selectedIndex == 1 then return "play" end
+        if selectedIndex == 2 then return "title" end
+    end
+
+    if key == "space" then
         return "play"
     end
     return nil

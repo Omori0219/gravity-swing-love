@@ -4,6 +4,8 @@ local Button = require("ui.button")
 local Paused = {}
 local fonts
 local resumeBtn, quitBtn
+local buttons = {}
+local selectedIndex = 1
 
 function Paused.enter(f)
     fonts = f
@@ -13,6 +15,15 @@ function Paused.enter(f)
 
     resumeBtn = Button.new("Resume", cx, cy + 10, bw, 40, Settings.COLORS.GREEN, fonts.small)
     quitBtn = Button.new("Back to Title", cx, cy + 64, bw, 40, Settings.COLORS.GRAY, fonts.small)
+    buttons = { resumeBtn, quitBtn }
+    selectedIndex = 1
+    Paused._updateSelection()
+end
+
+function Paused._updateSelection()
+    for i, btn in ipairs(buttons) do
+        btn.selected = (i == selectedIndex)
+    end
 end
 
 function Paused.update(dt)
@@ -37,36 +48,41 @@ function Paused.draw()
     resumeBtn:draw()
     quitBtn:draw()
 
-    -- Key hints
+    -- Key hint next to selected button
     love.graphics.setFont(fonts.tiny)
     local kh = 20
-
-    -- Space/Esc hint next to Resume
-    local rkx = resumeBtn.x + resumeBtn.w + 12
-    local rky = resumeBtn.y + (resumeBtn.h - kh) / 2
-    local rkw = 80
+    local selBtn = buttons[selectedIndex]
+    local hkx = selBtn.x + selBtn.w + 12
+    local hky = selBtn.y + (selBtn.h - kh) / 2
+    local hkw = 56
     love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
-    love.graphics.rectangle("line", rkx, rky, rkw, kh, 4, 4)
+    love.graphics.rectangle("line", hkx, hky, hkw, kh, 4, 4)
     love.graphics.setColor(0.6, 0.6, 0.6, 0.8)
-    local rkLabel = "Spc/Esc"
-    local rkLw = fonts.tiny:getWidth(rkLabel)
-    love.graphics.print(rkLabel, rkx + (rkw - rkLw) / 2, rky + (kh - fonts.tiny:getHeight()) / 2)
-
-    -- Q hint next to Quit
-    local qkx = quitBtn.x + quitBtn.w + 12
-    local qky = quitBtn.y + (quitBtn.h - kh) / 2
-    local qkw = 24
-    love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
-    love.graphics.rectangle("line", qkx, qky, qkw, kh, 4, 4)
-    love.graphics.setColor(0.6, 0.6, 0.6, 0.8)
-    local qkLabel = "Q"
-    local qkLw = fonts.tiny:getWidth(qkLabel)
-    love.graphics.print(qkLabel, qkx + (qkw - qkLw) / 2, qky + (kh - fonts.tiny:getHeight()) / 2)
+    local enterLabel = "Enter"
+    local elw = fonts.tiny:getWidth(enterLabel)
+    love.graphics.print(enterLabel, hkx + (hkw - elw) / 2, hky + (kh - fonts.tiny:getHeight()) / 2)
 
     love.graphics.setColor(1, 1, 1, 1)
 end
 
 function Paused.keypressed(key)
+    if key == "up" then
+        selectedIndex = selectedIndex - 1
+        if selectedIndex < 1 then selectedIndex = #buttons end
+        Paused._updateSelection()
+        return nil
+    elseif key == "down" then
+        selectedIndex = selectedIndex + 1
+        if selectedIndex > #buttons then selectedIndex = 1 end
+        Paused._updateSelection()
+        return nil
+    end
+
+    if key == "return" or key == "kpenter" then
+        if selectedIndex == 1 then return "resume" end
+        if selectedIndex == 2 then return "quit" end
+    end
+
     if key == "space" or key == "escape" then
         return "resume"
     end

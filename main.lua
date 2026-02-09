@@ -176,6 +176,8 @@ function love.keypressed(key)
         local action = Title.keypressed(key)
         if action == "play" then
             switchToReady()
+        elseif action == "options" then
+            switchToOptions()
         end
     elseif currentState == "ready" then
         local action = Ready.keypressed(key)
@@ -206,6 +208,8 @@ function love.keypressed(key)
             highScore = Ranking.getHighScore()
         elseif action == "play" then
             switchToPlaying(currentGameMode)
+        elseif action == "title" then
+            switchToTitle()
         end
     end
 end

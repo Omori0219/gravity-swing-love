@@ -7,6 +7,8 @@ local Title = {}
 local startBtn, optionsBtn
 local fonts
 local rankingList = {}
+local buttons = {}
+local selectedIndex = 1
 
 function Title.enter(f, ranking)
     fonts = f
@@ -15,6 +17,15 @@ function Title.enter(f, ranking)
     local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
     startBtn = Button.new("Start", cx, 380, bw, bh, Settings.COLORS.GREEN, fonts.medium)
     optionsBtn = Button.new("Options", cx, 435, bw, 36, Settings.COLORS.BLUE, fonts.small)
+    buttons = { startBtn, optionsBtn }
+    selectedIndex = 1
+    Title._updateSelection()
+end
+
+function Title._updateSelection()
+    for i, btn in ipairs(buttons) do
+        btn.selected = (i == selectedIndex)
+    end
 end
 
 function Title.update(dt)
@@ -50,11 +61,12 @@ function Title.draw()
     startBtn:draw()
     optionsBtn:draw()
 
-    -- Enter key hint next to Start
+    -- Enter key hint next to selected button
     love.graphics.setFont(fonts.tiny)
     local kh = 20
-    local kx = startBtn.x + startBtn.w + 12
-    local ky = startBtn.y + (startBtn.h - kh) / 2
+    local selBtn = buttons[selectedIndex]
+    local kx = selBtn.x + selBtn.w + 12
+    local ky = selBtn.y + (selBtn.h - kh) / 2
     local kw = 56
     love.graphics.setColor(0.6, 0.6, 0.6, 0.6)
     love.graphics.rectangle("line", kx, ky, kw, kh, 4, 4)
@@ -134,7 +146,24 @@ function Title.mousepressed(x, y, button)
 end
 
 function Title.keypressed(key)
-    if key == "space" or key == "return" then
+    if key == "up" then
+        selectedIndex = selectedIndex - 1
+        if selectedIndex < 1 then selectedIndex = #buttons end
+        Title._updateSelection()
+        return nil
+    elseif key == "down" then
+        selectedIndex = selectedIndex + 1
+        if selectedIndex > #buttons then selectedIndex = 1 end
+        Title._updateSelection()
+        return nil
+    end
+
+    if key == "return" or key == "kpenter" then
+        if selectedIndex == 1 then return "play" end
+        if selectedIndex == 2 then return "options" end
+    end
+
+    if key == "space" then
         return "play"
     end
     return nil

@@ -11,6 +11,7 @@ function Button.new(text, x, y, w, h, color, font)
     self.color = color or {0.298, 0.686, 0.314}
     self.font = font
     self.hovered = false
+    self.selected = false
     return self
 end
 
@@ -31,12 +32,20 @@ function Button:draw()
 
     -- Button body
     local r, g, b = self.color[1], self.color[2], self.color[3]
-    if self.hovered then
+    if self.hovered or self.selected then
         love.graphics.setColor(r * 0.85, g * 0.85, b * 0.85, 1)
     else
         love.graphics.setColor(r, g, b, 1)
     end
     love.graphics.rectangle("fill", self.x, self.y, self.w, self.h, 8, 8)
+
+    -- Selection indicator
+    if self.selected then
+        love.graphics.setColor(1, 1, 1, 0.9)
+        love.graphics.setLineWidth(2)
+        love.graphics.rectangle("line", self.x - 2, self.y - 2, self.w + 4, self.h + 4, 9, 9)
+        love.graphics.setLineWidth(1)
+    end
 
     -- Text
     love.graphics.setColor(1, 1, 1, 1)
