@@ -9,19 +9,19 @@ function KeyMap.isCancel(key)
 end
 
 function KeyMap.isUp(key)
-    return key == "up"
+    return key == "up" or key == "w"
 end
 
 function KeyMap.isDown(key)
-    return key == "down"
+    return key == "down" or key == "s"
 end
 
 function KeyMap.isLeft(key)
-    return key == "left"
+    return key == "left" or key == "a"
 end
 
 function KeyMap.isRight(key)
-    return key == "right"
+    return key == "right" or key == "d"
 end
 
 return KeyMap
