@@ -92,6 +92,7 @@ function Playing.update(dt)
     Particles.update(dt)
     FloatingScore.update(dt)
     ScreenShake.update(dt)
+    Asteroid.updateWowCat(dt)
 
     -- Launch delay
     if not canLaunch and launchDelayTimer > 0 then
@@ -178,6 +179,7 @@ function Playing.update(dt)
 
     -- Out of bounds: start dying (trail drains out) and begin next launch timer
     if Asteroid.isOutOfBounds(asteroid) then
+        Asteroid.triggerWowCat()
         asteroid.dying = true
         canLaunch = false
         if #currentChainKills > 0 then
@@ -197,6 +199,7 @@ function Playing.draw()
     love.graphics.rectangle("fill", 0, 0, Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT)
 
     Stars.draw(planet.x, planet.y)
+    Asteroid.drawWowCat()
 
     Planet.draw(planet)
     Enemy.drawAll(enemies)

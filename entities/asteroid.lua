@@ -5,6 +5,8 @@ local Asteroid = {}
 local lastEdge = 0
 local catMode = false
 local catImage = nil
+local wowCatImage = nil
+local wowCat = { active = false, timer = 0, phase = "idle" }
 
 function Asteroid.setCatMode(enabled)
     catMode = enabled
@@ -20,6 +22,63 @@ end
 function Asteroid._loadCatImage()
     catImage = love.graphics.newImage("assets/images/mode-cats/nyan-cat.png")
     catImage:setFilter("nearest", "nearest")
+    wowCatImage = love.graphics.newImage("assets/images/mode-cats/wow-cat.png")
+    wowCatImage:setFilter("linear", "linear")
+end
+
+-- Wow cat animation: slides up from bottom-left when nyan cat goes out of bounds
+local WOW_SLIDE_IN = 0.3
+local WOW_HOLD = 0.6
+local WOW_SLIDE_OUT = 0.3
+local WOW_TOTAL = WOW_SLIDE_IN + WOW_HOLD + WOW_SLIDE_OUT
+
+function Asteroid.triggerWowCat()
+    if catMode and wowCatImage then
+        wowCat.active = true
+        wowCat.timer = 0
+    end
+end
+
+function Asteroid.updateWowCat(dt)
+    if not wowCat.active then return end
+    wowCat.timer = wowCat.timer + dt
+    if wowCat.timer >= WOW_TOTAL then
+        wowCat.active = false
+        wowCat.timer = 0
+    end
+end
+
+function Asteroid.drawWowCat()
+    if not wowCat.active or not wowCatImage then return end
+
+    local imgW, imgH = wowCatImage:getDimensions()
+    local drawH = Settings.CANVAS_HEIGHT * 0.45
+    local drawScale = drawH / imgH
+    local drawW = imgW * drawScale
+
+    -- Calculate vertical offset based on animation phase
+    local t = wowCat.timer
+    local offsetY
+    if t < WOW_SLIDE_IN then
+        -- Slide in (from below)
+        local progress = t / WOW_SLIDE_IN
+        progress = 1 - (1 - progress) * (1 - progress)  -- ease-out
+        offsetY = drawH * (1 - progress)
+    elseif t < WOW_SLIDE_IN + WOW_HOLD then
+        -- Hold
+        offsetY = 0
+    else
+        -- Slide out (back down)
+        local progress = (t - WOW_SLIDE_IN - WOW_HOLD) / WOW_SLIDE_OUT
+        progress = progress * progress  -- ease-in
+        offsetY = drawH * progress
+    end
+
+    local x = 0
+    local y = Settings.CANVAS_HEIGHT - drawH + offsetY
+
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.draw(wowCatImage, x, y, 0, drawScale, drawScale)
 end
 
 function Asteroid.new()
