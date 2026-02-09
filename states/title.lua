@@ -6,7 +6,7 @@ local Audio = require("systems.audio")
 
 local Title = {}
 
-local startBtn, optionsBtn
+local startBtn, optionsBtn, creditsBtn
 local fonts
 local rankingList = {}
 local buttons = {}
@@ -19,7 +19,8 @@ function Title.enter(f, ranking)
     local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
     startBtn = Button.new("Start", cx, 380, bw, bh, Settings.COLORS.GREEN, fonts.medium)
     optionsBtn = Button.new("Options", cx, 435, bw, 36, Settings.COLORS.BLUE, fonts.small)
-    buttons = { startBtn, optionsBtn }
+    creditsBtn = Button.new("Credits", cx, 480, bw, 36, Settings.COLORS.GRAY, fonts.small)
+    buttons = { startBtn, optionsBtn, creditsBtn }
     selectedIndex = 1
     Title._updateSelection()
 end
@@ -34,6 +35,7 @@ function Title.update(dt)
     local mx, my = love.mouse.getPosition()
     startBtn:updateHover(mx, my)
     optionsBtn:updateHover(mx, my)
+    creditsBtn:updateHover(mx, my)
 end
 
 function Title.draw()
@@ -62,6 +64,7 @@ function Title.draw()
     -- Buttons
     startBtn:draw()
     optionsBtn:draw()
+    creditsBtn:draw()
 
     -- Copyright
     love.graphics.setColor(0.4, 0.4, 0.4, 1)
@@ -131,6 +134,10 @@ function Title.mousepressed(x, y, button)
             Audio.playConfirm()
             return "options"
         end
+        if creditsBtn:isClicked(x, y) then
+            Audio.playConfirm()
+            return "credits"
+        end
     end
     return nil
 end
@@ -154,6 +161,7 @@ function Title.keypressed(key)
         Audio.playConfirm()
         if selectedIndex == 1 then return "play" end
         if selectedIndex == 2 then return "options" end
+        if selectedIndex == 3 then return "credits" end
     end
     return nil
 end

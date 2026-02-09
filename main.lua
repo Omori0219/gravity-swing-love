@@ -17,9 +17,10 @@ local Paused = require("states.paused")
 local GameOver = require("states.gameover")
 local Options = require("states.options")
 local Ready = require("states.ready")
+local Credits = require("states.credits")
 
 -- Game state
-local currentState = "title"   -- "title", "ready", "playing", "paused", "gameover", "options"
+local currentState = "title"   -- "title", "ready", "playing", "paused", "gameover", "options", "credits"
 local highScore = 0
 local currentGameMode = "normal"  -- "normal" or "timed"
 local fonts = {}
@@ -99,6 +100,8 @@ function love.update(dt)
         Ready.update(dt)
     elseif currentState == "options" then
         Options.update(dt)
+    elseif currentState == "credits" then
+        Credits.update(dt)
     elseif currentState == "playing" then
         Playing.update(dt)
         -- Check if game over happened during update
@@ -127,6 +130,8 @@ function love.draw()
         Ready.draw()
     elseif currentState == "options" then
         Options.draw()
+    elseif currentState == "credits" then
+        Credits.draw()
     elseif currentState == "playing" then
         Playing.draw()
     elseif currentState == "paused" then
@@ -164,6 +169,10 @@ function love.keypressed(key)
             Audio.saveVolumes()
             switchToTitle()
             return
+        elseif currentState == "credits" then
+            Audio.playCancel()
+            switchToTitle()
+            return
         elseif currentState == "playing" then
             switchToPaused()
             return
@@ -186,6 +195,8 @@ function love.keypressed(key)
             switchToReady()
         elseif action == "options" then
             switchToOptions()
+        elseif action == "credits" then
+            switchToCredits()
         end
     elseif currentState == "ready" then
         local action = Ready.keypressed(key)
@@ -194,6 +205,11 @@ function love.keypressed(key)
         end
     elseif currentState == "options" then
         local action = Options.keypressed(key)
+        if action == "back" then
+            switchToTitle()
+        end
+    elseif currentState == "credits" then
+        local action = Credits.keypressed(key)
         if action == "back" then
             switchToTitle()
         end
@@ -253,6 +269,8 @@ function love.mousepressed(x, y, button)
             switchToReady()
         elseif action == "options" then
             switchToOptions()
+        elseif action == "credits" then
+            switchToCredits()
         end
     elseif currentState == "ready" then
         local action = Ready.mousepressed(gx, gy, button)
@@ -261,6 +279,11 @@ function love.mousepressed(x, y, button)
         end
     elseif currentState == "options" then
         local action = Options.mousepressed(gx, gy, button)
+        if action == "back" then
+            switchToTitle()
+        end
+    elseif currentState == "credits" then
+        local action = Credits.mousepressed(gx, gy, button)
         if action == "back" then
             switchToTitle()
         end
@@ -306,6 +329,11 @@ end
 function switchToOptions()
     currentState = "options"
     Options.enter(fonts)
+end
+
+function switchToCredits()
+    currentState = "credits"
+    Credits.enter(fonts)
 end
 
 function switchToReady()
