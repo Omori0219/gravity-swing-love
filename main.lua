@@ -1,3 +1,4 @@
+local push = require("lib.push")
 local Settings = require("settings")
 local Stars = require("systems.stars")
 local Audio = require("systems.audio")
@@ -26,6 +27,23 @@ local fonts = {}
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     math.randomseed(os.time())
+
+    -- Setup push for resolution-independent rendering
+    push:setupScreen(Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT, Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT, {
+        fullscreen = false,
+        resizable = true,
+        highdpi = true,
+        pixelperfect = false,
+    })
+
+    -- Override love.mouse.getPosition to return game-space coordinates
+    -- This way all existing code using love.mouse.getPosition() just works
+    local _originalGetPosition = love.mouse.getPosition
+    love.mouse.getPosition = function()
+        local mx, my = _originalGetPosition()
+        local gx, gy = push:toGame(mx, my)
+        return gx or 0, gy or 0
+    end
 
     -- Load fonts
     local fontPath = "assets/fonts/PressStart2P.ttf"
@@ -85,6 +103,8 @@ function love.update(dt)
 end
 
 function love.draw()
+    push:start()
+
     love.graphics.setColor(Settings.COLORS.BACKGROUND)
     love.graphics.rectangle("fill", 0, 0, Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT)
 
@@ -104,11 +124,19 @@ function love.draw()
         Playing.draw()
         GameOver.draw()
     end
+
+    push:finish()
 end
 
 function love.keypressed(key)
     if key == "f5" then
         love.event.quit("restart")
+        return
+    end
+
+    -- Fullscreen toggle: F11 or Alt+Enter
+    if key == "f11" or (key == "return" and love.keyboard.isDown("lalt", "ralt")) then
+        push:switchFullscreen()
         return
     end
 
@@ -179,45 +207,55 @@ function love.textinput(text)
 end
 
 function love.mousemoved(x, y)
+    local gx, gy = push:toGame(x, y)
+    if not gx or not gy then return end
     if currentState == "options" then
-        Options.mousemoved(x, y)
+        Options.mousemoved(gx, gy)
     end
 end
 
 function love.mousereleased(x, y, button)
+    local gx, gy = push:toGame(x, y)
+    if not gx or not gy then return end
     if currentState == "options" then
-        Options.mousereleased(x, y, button)
+        Options.mousereleased(gx, gy, button)
     end
 end
 
 function love.mousepressed(x, y, button)
+    local gx, gy = push:toGame(x, y)
+    if not gx or not gy then return end
     if currentState == "title" then
-        local action = Title.mousepressed(x, y, button)
+        local action = Title.mousepressed(gx, gy, button)
         if action == "play" then
             switchToReady()
         elseif action == "options" then
             switchToOptions()
         end
     elseif currentState == "ready" then
-        local action = Ready.mousepressed(x, y, button)
+        local action = Ready.mousepressed(gx, gy, button)
         if action == "start" then
             switchToPlaying(currentGameMode)
         end
     elseif currentState == "options" then
-        local action = Options.mousepressed(x, y, button)
+        local action = Options.mousepressed(gx, gy, button)
         if action == "back" then
             switchToTitle()
         end
     elseif currentState == "playing" then
-        Playing.mousepressed(x, y, button)
+        Playing.mousepressed(gx, gy, button)
     elseif currentState == "gameover" then
-        local action = GameOver.mousepressed(x, y, button)
+        local action = GameOver.mousepressed(gx, gy, button)
         if action == "play" then
             switchToPlaying(currentGameMode)
         elseif action == "title" then
             switchToTitle()
         end
     end
+end
+
+function love.resize(w, h)
+    push:resize(w, h)
 end
 
 -- State transitions
