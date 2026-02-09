@@ -120,12 +120,15 @@ function Asteroid.new()
     local speedMultiplier = Settings.ASTEROID_SPEED_MIN + math.random() * (Settings.ASTEROID_SPEED_MAX - Settings.ASTEROID_SPEED_MIN)
     local speed = Settings.ASTEROID_INITIAL_VX * speedMultiplier
 
+    local radius = Settings.ASTEROID_RADIUS
+    if catMode then radius = radius * 3 end
+
     return {
         x = x,
         y = y,
         vx = math.cos(angle) * speed,
         vy = math.sin(angle) * speed,
-        radius = Settings.ASTEROID_RADIUS,
+        radius = radius,
         trail = {},
     }
 end
