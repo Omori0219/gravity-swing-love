@@ -220,7 +220,7 @@ function Asteroid.draw(asteroid, comboLevel)
         local isMaxCombo = catMode and (comboLevel + 1 >= #Settings.ASTEROID_APPEARANCE)
 
         if isMaxCombo then
-            -- Rainbow trail: draw each segment with a different color
+            -- Nyan Cat rainbow: bands perpendicular to trail, with wave
             local rainbow = {
                 {1, 0, 0},       -- red
                 {1, 0.5, 0},     -- orange
@@ -230,13 +230,41 @@ function Asteroid.draw(asteroid, comboLevel)
                 {0.3, 0, 1},     -- indigo
                 {0.6, 0, 1},     -- violet
             }
-            for i = 1, #asteroid.trail - 1 do
-                local p1 = asteroid.trail[i]
-                local p2 = asteroid.trail[i + 1]
-                local ci = (i % #rainbow) + 1
-                local c = rainbow[ci]
-                love.graphics.setColor(c[1], c[2], c[3], 0.8)
-                love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+            local bandCount = #rainbow
+            local bandWidth = lineW / bandCount
+            local waveAmp = lineW * 0.35
+            local waveFreq = 0.55
+
+            love.graphics.setLineWidth(bandWidth + 0.5)
+
+            for bi = 1, bandCount do
+                local c = rainbow[bi]
+                love.graphics.setColor(c[1], c[2], c[3], 0.85)
+                local bandOffset = (bi - (bandCount + 1) / 2) * bandWidth
+
+                local points = {}
+                for i = 1, #asteroid.trail do
+                    local p = asteroid.trail[i]
+                    local nx, ny = 0, -1
+                    if i < #asteroid.trail then
+                        local p2 = asteroid.trail[i + 1]
+                        local dx, dy = p2.x - p.x, p2.y - p.y
+                        local len = math.sqrt(dx * dx + dy * dy)
+                        if len > 0 then nx, ny = -dy / len, dx / len end
+                    elseif i > 1 then
+                        local p2 = asteroid.trail[i - 1]
+                        local dx, dy = p.x - p2.x, p.y - p2.y
+                        local len = math.sqrt(dx * dx + dy * dy)
+                        if len > 0 then nx, ny = -dy / len, dx / len end
+                    end
+                    local wave = math.sin(i * waveFreq) * waveAmp
+                    table.insert(points, p.x + nx * (bandOffset + wave))
+                    table.insert(points, p.y + ny * (bandOffset + wave))
+                end
+
+                if #points >= 4 then
+                    love.graphics.line(points)
+                end
             end
         else
             local r = mainColor[1] or 1
