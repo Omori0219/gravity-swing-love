@@ -50,6 +50,7 @@ function Playing.enter(f, hs, mode)
 
     Particles.clear()
     FloatingScore.clear()
+    Audio.setNyanMode(false)
     Audio.playBGM()
 end
 
@@ -108,6 +109,8 @@ function Playing.update(dt)
         asteroid = Asteroid.new()
         local range = Settings.ASTEROID_INITIAL_COMBO_MAX - Settings.ASTEROID_INITIAL_COMBO_MIN
         consecutiveHits = Settings.ASTEROID_INITIAL_COMBO_MIN + math.floor(math.random() ^ Settings.ASTEROID_INITIAL_COMBO_BIAS * (range + 1))
+        -- New asteroid: combo resets, switch back to normal BGM
+        Audio.setNyanMode(false)
     end
 
     if not asteroid then return end
@@ -171,6 +174,11 @@ function Playing.update(dt)
 
             Particles.spawn(ex, ey, "hit")
             Audio.playHit()
+
+            -- Switch to nyan BGM at max combo in cat mode
+            if Asteroid.isCatMode() and consecutiveHits + 1 >= #Settings.ASTEROID_APPEARANCE then
+                Audio.setNyanMode(true)
+            end
 
             -- Respawn enemy
             enemies[i] = Enemy.createOne(enemies, planet)

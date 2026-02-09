@@ -3,6 +3,8 @@ local Save = require("lib.save")
 
 local Audio = {}
 Audio.bgm = nil
+Audio.nyanBgm = nil
+Audio.nyanActive = false
 Audio.hitSound = nil
 Audio.gameOverSound = nil
 Audio.cursorSound = nil
@@ -160,6 +162,14 @@ function Audio.init()
         Audio.bgm:setVolume(Settings.BGM_VOLUME)
     end
 
+    -- Nyan Cat BGM
+    local nyanPath = "assets/images/mode-cats/nyancat.mp3"
+    if love.filesystem.getInfo(nyanPath) then
+        Audio.nyanBgm = love.audio.newSource(nyanPath, "stream")
+        Audio.nyanBgm:setLooping(true)
+        Audio.nyanBgm:setVolume(Settings.BGM_VOLUME)
+    end
+
     -- Hit sound (triangle wave, C5)
     local hitData = generateTriangleWave(Settings.HIT_SOUND_PITCH, Settings.HIT_SOUND_DURATION, 44100)
     Audio.hitSound = love.audio.newSource(hitData)
@@ -190,19 +200,46 @@ function Audio.init()
     Audio.initialized = true
 end
 
+function Audio._activeBgm()
+    return Audio.nyanActive and Audio.nyanBgm or Audio.bgm
+end
+
 function Audio.playBGM(fromStart)
-    if not Audio.initialized or Audio.isMuted or not Audio.bgm then return end
+    if not Audio.initialized or Audio.isMuted then return end
+    local src = Audio._activeBgm()
+    if not src then return end
     if fromStart then
-        Audio.bgm:stop()
-        Audio.bgm:play()
-    elseif not Audio.bgm:isPlaying() then
-        Audio.bgm:play()
+        src:stop()
+        src:play()
+    elseif not src:isPlaying() then
+        src:play()
     end
 end
 
 function Audio.stopBGM()
     if Audio.bgm and Audio.bgm:isPlaying() then
         Audio.bgm:pause()
+    end
+    if Audio.nyanBgm and Audio.nyanBgm:isPlaying() then
+        Audio.nyanBgm:pause()
+    end
+end
+
+function Audio.setNyanMode(enabled)
+    if enabled == Audio.nyanActive then return end
+    local wasPlaying = false
+    local old = Audio._activeBgm()
+    if old and old:isPlaying() then
+        wasPlaying = true
+        old:pause()
+    end
+    Audio.nyanActive = enabled
+    if wasPlaying and not Audio.isMuted then
+        local new = Audio._activeBgm()
+        if new then
+            new:setVolume(Audio.bgmVolume)
+            new:play()
+        end
     end
 end
 
@@ -253,6 +290,9 @@ function Audio.setBGMVolume(vol)
     Audio.bgmVolume = math.max(0, math.min(1, vol))
     if Audio.bgm then
         Audio.bgm:setVolume(Audio.bgmVolume)
+    end
+    if Audio.nyanBgm then
+        Audio.nyanBgm:setVolume(Audio.bgmVolume)
     end
 end
 
