@@ -5,15 +5,14 @@ local bgImage = nil
 local gravityShader = nil
 
 local shaderCode = [[
-    extern vec2 planetPos;   // pixel coordinates
-    extern vec2 screenSize;
+    extern vec2 planetUV;       // planet position in texture UV space
+    extern vec2 screenSize;     // screen dimensions in pixels
     extern float strength;      // distortion strength
     extern float maxDistortion; // cap to prevent extreme warping
     extern float radius;        // influence radius in pixels
 
     vec4 effect(vec4 color, Image tex, vec2 uv, vec2 screen_coords)
     {
-        vec2 planetUV = planetPos / screenSize;
         vec2 dir = planetUV - uv;
         float dist = length(dir * screenSize);
 
@@ -52,7 +51,10 @@ function Stars.draw(planetX, planetY)
         local oy = (h - imgH * scale) / 2
 
         if gravityShader and planetX then
-            gravityShader:send("planetPos", {planetX, planetY})
+            -- Convert planet screen position to texture UV
+            local pu = (planetX - ox) / (imgW * scale)
+            local pv = (planetY - oy) / (imgH * scale)
+            gravityShader:send("planetUV", {pu, pv})
             gravityShader:send("screenSize", {w, h})
             gravityShader:send("strength", Settings.GRAVITY_LENS_STRENGTH)
             gravityShader:send("maxDistortion", Settings.GRAVITY_LENS_MAX_DISTORTION)
