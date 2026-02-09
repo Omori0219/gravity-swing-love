@@ -28,13 +28,20 @@ function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     math.randomseed(os.time())
 
+    -- Restore saved display settings
+    local displaySettings = Save.readDisplay()
+
     -- Setup push for resolution-independent rendering
-    push:setupScreen(Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT, Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT, {
+    push:setupScreen(Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT, displaySettings.windowW, displaySettings.windowH, {
         fullscreen = false,
         resizable = true,
         highdpi = true,
         pixelperfect = false,
     })
+
+    if displaySettings.fullscreen then
+        push:switchFullscreen()
+    end
 
     -- Override love.mouse.getPosition to return game-space coordinates
     -- This way all existing code using love.mouse.getPosition() just works
@@ -137,6 +144,8 @@ function love.keypressed(key)
     -- Fullscreen toggle: F11 or Alt+Enter
     if key == "f11" or (key == "return" and love.keyboard.isDown("lalt", "ralt")) then
         push:switchFullscreen()
+        local w, h = love.window.getMode()
+        Save.writeDisplay(love.window.getFullscreen(), w, h)
         return
     end
 

@@ -52,4 +52,24 @@ function Save.readEternalMode()
     return false
 end
 
+function Save.writeDisplay(fullscreen, windowW, windowH)
+    love.filesystem.write("display.dat", string.format("%s,%d,%d",
+        fullscreen and "1" or "0", windowW, windowH))
+end
+
+function Save.readDisplay()
+    if love.filesystem.getInfo("display.dat") then
+        local data = love.filesystem.read("display.dat")
+        local fs, w, h = data:match("([01]),(%d+),(%d+)")
+        if fs then
+            return {
+                fullscreen = fs == "1",
+                windowW = tonumber(w),
+                windowH = tonumber(h),
+            }
+        end
+    end
+    return { fullscreen = false, windowW = Settings.CANVAS_WIDTH, windowH = Settings.CANVAS_HEIGHT }
+end
+
 return Save
