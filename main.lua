@@ -253,6 +253,13 @@ function love.mousepressed(x, y, button)
         end
     elseif currentState == "playing" then
         Playing.mousepressed(gx, gy, button)
+    elseif currentState == "paused" then
+        local action = Paused.mousepressed(gx, gy, button)
+        if action == "resume" then
+            switchToResume()
+        elseif action == "quit" then
+            switchToTitle()
+        end
     elseif currentState == "gameover" then
         local action = GameOver.mousepressed(gx, gy, button)
         if action == "play" then
