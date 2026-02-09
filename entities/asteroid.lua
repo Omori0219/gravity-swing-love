@@ -232,8 +232,6 @@ function Asteroid.draw(asteroid, comboLevel)
             }
             local bandCount = #rainbow
             local bandWidth = lineW / bandCount
-            local waveAmp = lineW * 0.35
-            local waveFreq = 0.55
 
             love.graphics.setLineWidth(bandWidth + 0.5)
 
@@ -257,9 +255,8 @@ function Asteroid.draw(asteroid, comboLevel)
                         local len = math.sqrt(dx * dx + dy * dy)
                         if len > 0 then nx, ny = -dy / len, dx / len end
                     end
-                    local wave = math.sin(i * waveFreq) * waveAmp
-                    table.insert(points, p.x + nx * (bandOffset + wave))
-                    table.insert(points, p.y + ny * (bandOffset + wave))
+                    table.insert(points, p.x + nx * bandOffset)
+                    table.insert(points, p.y + ny * bandOffset)
                 end
 
                 if #points >= 4 then
