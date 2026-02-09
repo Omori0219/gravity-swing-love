@@ -6,7 +6,6 @@ Settings.COLORS = {
     GAME_BG = {0.165, 0.165, 0.306},            -- #2a2a4e
     ENEMY = {0.914, 0.271, 0.376},              -- #e94560
     ENEMY_STROKE = {0.753, 0.188, 0.314},       -- #c03050
-    CANNON = {0.8, 0.8, 0.8},                   -- #cccccc
     PARTICLE_HIT = {
         {1, 0.843, 0},       -- #FFD700
         {1, 0.647, 0},       -- #FFA500
@@ -107,13 +106,6 @@ Settings.BASE_BONUS_FONT_SIZE = 24
 Settings.BONUS_FONT_SIZE_INCREMENT = 4
 Settings.SCREEN_SHAKE_DURATION = 0.4          -- seconds
 Settings.SCREEN_SHAKE_INTENSITY = 20
-
--- Cannon
-Settings.CANNON_X = 50
-Settings.CANNON_WIDTH = 40
-Settings.CANNON_HEIGHT = 20
-Settings.CANNON_BARREL_LENGTH = 15
-Settings.CANNON_BARREL_WIDTH = 8
 
 -- Stars
 Settings.STARS_COUNT = 100
