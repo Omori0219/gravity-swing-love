@@ -5,8 +5,19 @@ local Asteroid = {}
 local lastEdge = 0
 local catMode = false
 local catImage = nil
+local catNameFont = nil
 local wowCatImage = nil
 local wowCat = { active = false, timer = 0, phase = "idle" }
+
+-- Random cat names for Cat Mode
+local catNames = {
+    "Mochi", "Luna", "Nyan", "Maru", "Tama",
+    "Socks", "Miso", "Kiki", "Mimi", "Coco",
+    "Pumpkin", "Salem", "Felix", "Gizmo", "Pepper",
+    "Tofu", "Wasabi", "Sushi", "Matcha", "Azuki",
+    "Simba", "Oreo", "Latte", "Mocha", "Chip",
+    "Biscuit", "Nugget", "Pickles", "Waffles", "Bean",
+}
 
 function Asteroid.setCatMode(enabled)
     catMode = enabled
@@ -24,6 +35,7 @@ function Asteroid._loadCatImage()
     catImage:setFilter("nearest", "nearest")
     wowCatImage = love.graphics.newImage("assets/images/mode-cats/wow-cat.png")
     wowCatImage:setFilter("linear", "linear")
+    catNameFont = love.graphics.newFont("assets/fonts/PressStart2P.ttf", 32)
 end
 
 -- Wow cat animation: slides up from bottom-left when nyan cat goes out of bounds
@@ -130,6 +142,7 @@ function Asteroid.new()
         vy = math.sin(angle) * speed,
         radius = radius,
         trail = {},
+        catName = catNames[math.random(#catNames)],
     }
 end
 
@@ -188,6 +201,17 @@ function Asteroid.draw(asteroid, comboLevel)
                 0,
                 sx, drawScale,
                 imgW / 2, imgH / 2)
+            -- Draw cat name above the cat
+            if asteroid.catName and catNameFont then
+                local prevFont = love.graphics.getFont()
+                love.graphics.setFont(catNameFont)
+                local nameW = catNameFont:getWidth(asteroid.catName)
+                local nameX = asteroid.x - nameW / 2
+                local nameY = asteroid.y - (imgH / 2) * drawScale - 40
+                love.graphics.setColor(1, 1, 1, 0.9)
+                love.graphics.print(asteroid.catName, nameX, nameY)
+                love.graphics.setFont(prevFont)
+            end
         elseif appearance.type == "solid" then
             love.graphics.setColor(mainColor)
             love.graphics.circle("fill", asteroid.x, asteroid.y, asteroid.radius)
