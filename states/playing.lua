@@ -348,6 +348,11 @@ function Playing.draw()
     -- Combo counter (next to kill feed)
     HUD.drawCombo(consecutiveHits, fonts.killFeed)
 
+    -- Cat profile (top-right, cat/chaos mode only)
+    if Asteroid.isCatMode() and asteroid then
+        HUD.drawCatProfile(asteroid.catName, asteroid.catTrait, Asteroid.getCatImage(), fonts)
+    end
+
     -- Mute indicator
     if Audio.isMuted then
         HUD.drawMuteIndicator(fonts.tiny)

@@ -78,6 +78,41 @@ function HUD.drawCombo(combo, font)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
+function HUD.drawCatProfile(name, trait, catImg, fonts)
+    if not name or not catImg then return end
+    local imgW, imgH = catImg:getDimensions()
+    local profileSize = 60
+    local scale = profileSize / imgH
+    local imgDrawW = imgW * scale
+    local margin = 16
+    local rightX = Settings.CANVAS_WIDTH - margin
+    local y = 10
+
+    -- Name (yellow)
+    local nameFont = fonts.profileName
+    love.graphics.setFont(nameFont)
+    love.graphics.setColor(1, 0.843, 0, 0.9)
+    local nameW = nameFont:getWidth(name)
+    love.graphics.print(name, rightX - nameW, y)
+    y = y + nameFont:getHeight() + 4
+
+    -- Cat image
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.draw(catImg, rightX - imgDrawW, y, 0, scale, scale)
+    y = y + profileSize + 4
+
+    -- Trait (white)
+    if trait then
+        local traitFont = fonts.profileTrait
+        love.graphics.setFont(traitFont)
+        love.graphics.setColor(1, 1, 1, 0.8)
+        local traitW = traitFont:getWidth(trait)
+        love.graphics.print(trait, rightX - traitW, y)
+    end
+
+    love.graphics.setColor(1, 1, 1, 1)
+end
+
 function HUD.drawMuteIndicator(font)
     love.graphics.setFont(font)
     love.graphics.setColor(1, 1, 1, 0.4)

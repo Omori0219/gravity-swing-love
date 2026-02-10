@@ -20,6 +20,29 @@ local catNames = {
     "Biscuit", "Nugget", "Pickles", "Waffles", "Bean",
 }
 
+local catTraits = {
+    "Loves belly rubs",
+    "Afraid of cucumbers",
+    "Expert napper",
+    "Chases lasers",
+    "Professional purrer",
+    "Space navigator",
+    "Rainbow specialist",
+    "Gravity defier",
+    "Star collector",
+    "Cosmic explorer",
+    "Midnight zoomer",
+    "Yarn destroyer",
+    "Box connoisseur",
+    "Keyboard sitter",
+    "Sunbeam seeker",
+    "Treat inspector",
+    "Window watcher",
+    "Tail chaser",
+    "Whisker twister",
+    "Cardboard critic",
+}
+
 function Asteroid.setGameMode(mode)
     gameMode = mode
     if mode ~= "normal" and not catImage then
@@ -164,6 +187,10 @@ function Asteroid.drawWowCat()
     end
 end
 
+function Asteroid.getCatImage()
+    return catImage
+end
+
 function Asteroid.clearWowCats()
     wowCats = {}
     wowCatTemp = nil
@@ -219,6 +246,7 @@ function Asteroid.new()
         radius = radius,
         trail = {},
         catName = catNames[math.random(#catNames)],
+        catTrait = catTraits[math.random(#catTraits)],
         shy = false,
     }
 end
