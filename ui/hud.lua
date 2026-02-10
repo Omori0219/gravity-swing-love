@@ -2,10 +2,15 @@ local Settings = require("settings")
 
 local HUD = {}
 
-function HUD.drawScore(score, font, y)
+function HUD.drawScore(score, font, y, bonusActive)
     y = y or 32
     love.graphics.setFont(font)
-    love.graphics.setColor(Settings.COLORS.WHITE)
+    if bonusActive then
+        local pulse = 0.7 + 0.3 * math.sin(love.timer.getTime() * 6)
+        love.graphics.setColor(1, 0.843, 0, pulse)
+    else
+        love.graphics.setColor(Settings.COLORS.WHITE)
+    end
     local text = tostring(score)
     local tw = font:getWidth(text)
     love.graphics.print(text, (Settings.CANVAS_WIDTH - tw) / 2, y)
@@ -110,6 +115,17 @@ function HUD.drawCatProfile(name, trait, catImg, fonts)
         love.graphics.print(trait, rightX - traitW, y)
     end
 
+    love.graphics.setColor(1, 1, 1, 1)
+end
+
+function HUD.drawScoreMultiplier(multiplier, timer, font, y)
+    if multiplier <= 1 then return end
+    local text = "BONUS x" .. multiplier
+    love.graphics.setFont(font)
+    local tw = font:getWidth(text)
+    local pulse = 0.7 + 0.3 * math.sin(love.timer.getTime() * 6)
+    love.graphics.setColor(1, 0.843, 0, pulse)
+    love.graphics.print(text, (Settings.CANVAS_WIDTH - tw) / 2, y)
     love.graphics.setColor(1, 1, 1, 1)
 end
 

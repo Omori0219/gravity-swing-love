@@ -90,6 +90,12 @@ Settings.KILL_FEED_LINE_HEIGHT = 24
 Settings.KILL_FEED_X = 12
 Settings.KILL_FEED_Y = 10
 
+-- UFO
+Settings.UFO_SPAWN_MIN = 30
+Settings.UFO_SPAWN_MAX = 60
+Settings.UFO_BONUS_MULTIPLIER = 3
+Settings.UFO_BONUS_DURATION = 8
+
 -- Physics
 Settings.GRAVITY_CONSTANT = 0.1
 Settings.GRAVITY_FALLOFF = 1.85

@@ -9,6 +9,7 @@ local FloatingScore = require("systems.floating_score")
 local ScreenShake = require("systems.screenshake")
 local Audio = require("systems.audio")
 local HUD = require("ui.hud")
+local UFO = require("entities.ufo")
 
 local Playing = {}
 
@@ -31,6 +32,89 @@ local gameMode          -- "normal" or "timed"
 local timeRemaining     -- seconds left (120s mode)
 local timeUp            -- true when timer expired
 local TIMED_DURATION = 120
+
+-- UFO bonus system
+local ufo
+local ufoSpawnTimer
+local scoreMultiplier
+local scoreMultiplierTimer
+local flashTimer
+
+-- Super Saiyan aura effect
+local function drawBonusAura(ast, ratio)
+    local x, y = ast.x, ast.y
+    local r = ast.radius
+    local t = love.timer.getTime()
+
+    -- Outer soft glow layers
+    for i = 4, 1, -1 do
+        local gr = r * (2.5 + i * 0.6) * (0.85 + 0.15 * math.sin(t * 3 + i))
+        love.graphics.setColor(1, 0.843, 0, 0.06 * ratio)
+        love.graphics.circle("fill", x, y, gr)
+    end
+
+    -- Inner bright glow
+    local innerR = r * 2.2 * (0.9 + 0.1 * math.sin(t * 5))
+    love.graphics.setColor(1, 0.9, 0.2, 0.2 * ratio)
+    love.graphics.circle("fill", x, y, innerR)
+
+    -- Flame wisps rising upward
+    for i = 1, 8 do
+        local baseAngle = (i / 8) * math.pi * 2 + t * 1.5
+        local bx = x + math.cos(baseAngle) * r * 0.9
+        local by = y + math.sin(baseAngle) * r * 0.9
+        local flameH = r * (1.5 + 0.8 * math.sin(t * 4 + i * 1.7)) * ratio
+        local flameW = r * 0.35
+        local wave = math.sin(t * 5 + i * 2) * r * 0.15
+
+        love.graphics.setColor(1, 0.85, 0.1, 0.25 * ratio)
+        love.graphics.polygon("fill",
+            bx - flameW, by,
+            bx + wave, by - flameH,
+            bx + flameW, by)
+    end
+
+    love.graphics.setColor(1, 1, 1, 1)
+end
+
+-- Super Saiyan spiky hair
+local function drawBonusHair(ast, ratio)
+    local x, y = ast.x, ast.y
+    local r = ast.radius
+    local t = love.timer.getTime()
+    local headY = y - r * 1.3
+
+    local spikes = {
+        {-0.5, -1.8},
+        {-0.2, -2.2},
+        {0.1, -2.5},
+        {0.35, -2.0},
+        {0.6, -1.6},
+    }
+
+    for i, spike in ipairs(spikes) do
+        local wave = math.sin(t * 3 + i * 0.8) * r * 0.08
+        local tipX = x + spike[1] * r + wave
+        local tipY = headY + spike[2] * r
+        local baseW = r * 0.25
+
+        -- Hair spike
+        love.graphics.setColor(1, 0.85, 0, 0.9 * ratio)
+        love.graphics.polygon("fill",
+            x + spike[1] * r - baseW, headY,
+            tipX, tipY,
+            x + spike[1] * r + baseW, headY)
+
+        -- Brighter highlight
+        love.graphics.setColor(1, 1, 0.5, 0.5 * ratio)
+        love.graphics.polygon("fill",
+            x + spike[1] * r - baseW * 0.3, headY,
+            tipX, tipY + r * 0.2,
+            x + spike[1] * r + baseW * 0.3, headY)
+    end
+
+    love.graphics.setColor(1, 1, 1, 1)
+end
 
 function Playing.enter(f, hs, mode)
     fonts = f
@@ -56,6 +140,12 @@ function Playing.enter(f, hs, mode)
     extraAsteroids = {}
     extraSpawnTimer = 0
     Asteroid.clearWowCats()
+
+    ufo = nil
+    ufoSpawnTimer = Settings.UFO_SPAWN_MIN + math.random() * (Settings.UFO_SPAWN_MAX - Settings.UFO_SPAWN_MIN)
+    scoreMultiplier = 1
+    scoreMultiplierTimer = 0
+    flashTimer = 0
 
     Particles.clear()
     FloatingScore.clear()
@@ -103,6 +193,64 @@ function Playing.update(dt)
     FloatingScore.update(dt)
     ScreenShake.update(dt)
     Asteroid.updateWowCat(dt)
+
+    -- UFO system
+    ufoSpawnTimer = ufoSpawnTimer - dt
+    if not ufo and ufoSpawnTimer <= 0 then
+        ufo = UFO.new()
+    end
+    if ufo then
+        UFO.update(ufo, dt)
+        -- Check collision with main asteroid
+        if asteroid and not asteroid.dying and UFO.checkCollision(ufo, asteroid) then
+            scoreMultiplier = Settings.UFO_BONUS_MULTIPLIER
+            scoreMultiplierTimer = Settings.UFO_BONUS_DURATION
+            flashTimer = 0.3
+            ScreenShake.trigger(0.3, 12)
+            FloatingScore.spawn("BONUS x" .. scoreMultiplier, ufo.x, ufo.y, Settings.COLORS.GOLD, true, 5)
+            Particles.spawn(ufo.x, ufo.y, "hit")
+            Audio.playHit()
+            ufo = nil
+            ufoSpawnTimer = Settings.UFO_SPAWN_MIN + math.random() * (Settings.UFO_SPAWN_MAX - Settings.UFO_SPAWN_MIN)
+        end
+        -- Check collision with extra asteroids
+        if ufo then
+            for _, extra in ipairs(extraAsteroids) do
+                if not extra.dying and UFO.checkCollision(ufo, extra) then
+                    scoreMultiplier = Settings.UFO_BONUS_MULTIPLIER
+                    scoreMultiplierTimer = Settings.UFO_BONUS_DURATION
+                    flashTimer = 0.3
+                    ScreenShake.trigger(0.3, 12)
+                    FloatingScore.spawn("BONUS x" .. scoreMultiplier, ufo.x, ufo.y, Settings.COLORS.GOLD, true, 5)
+                    Particles.spawn(ufo.x, ufo.y, "hit")
+                    Audio.playHit()
+                    ufo = nil
+                    ufoSpawnTimer = Settings.UFO_SPAWN_MIN + math.random() * (Settings.UFO_SPAWN_MAX - Settings.UFO_SPAWN_MIN)
+                    break
+                end
+            end
+        end
+        -- Off screen
+        if ufo and UFO.isOffScreen(ufo) then
+            ufo = nil
+            ufoSpawnTimer = Settings.UFO_SPAWN_MIN + math.random() * (Settings.UFO_SPAWN_MAX - Settings.UFO_SPAWN_MIN)
+        end
+    end
+
+    -- Score multiplier timer
+    if scoreMultiplierTimer > 0 then
+        scoreMultiplierTimer = scoreMultiplierTimer - dt
+        if scoreMultiplierTimer <= 0 then
+            scoreMultiplier = 1
+            scoreMultiplierTimer = 0
+        end
+    end
+
+    -- Flash timer
+    if flashTimer > 0 then
+        flashTimer = flashTimer - dt
+        if flashTimer < 0 then flashTimer = 0 end
+    end
 
     -- Launch delay
     if not canLaunch and launchDelayTimer > 0 then
@@ -163,9 +311,9 @@ function Playing.update(dt)
                 maxConsecutiveHits = consecutiveHits
             end
 
-            -- Score = baseScore x combo
+            -- Score = baseScore x combo x UFO bonus
             local comboMultiplier = math.max(1, consecutiveHits)
-            local hitScore = baseScore * comboMultiplier
+            local hitScore = baseScore * comboMultiplier * scoreMultiplier
             score = score + hitScore
 
             local appearance = Asteroid.getAppearance(consecutiveHits)
@@ -266,7 +414,7 @@ function Playing.update(dt)
                     end
 
                     local comboMultiplier = math.max(1, consecutiveHits)
-                    local hitScore = baseScore * comboMultiplier
+                    local hitScore = baseScore * comboMultiplier * scoreMultiplier
                     score = score + hitScore
 
                     local appearance = Asteroid.getAppearance(consecutiveHits)
@@ -325,14 +473,35 @@ function Playing.draw()
 
     Planet.draw(planet)
     Enemy.drawAll(enemies)
+
+    -- Bonus state on main asteroid
+    local bonusRatio = 0
+    if scoreMultiplier > 1 then
+        bonusRatio = scoreMultiplierTimer / Settings.UFO_BONUS_DURATION
+    end
+    if asteroid then
+        asteroid.bonusActive = scoreMultiplier > 1
+        asteroid.bonusRatio = bonusRatio
+    end
+    if bonusRatio > 0 and asteroid and not asteroid.dying then
+        drawBonusAura(asteroid, bonusRatio)
+    end
+
     if asteroid then
         Asteroid.draw(asteroid, consecutiveHits, true)
     end
+
+    -- Bonus hair on top of cat
+    if bonusRatio > 0 and asteroid and not asteroid.dying then
+        drawBonusHair(asteroid, bonusRatio)
+    end
+
     for _, extra in ipairs(extraAsteroids) do
         Asteroid.draw(extra, consecutiveHits, false)
     end
     Particles.draw()
     Asteroid.drawWowCat()
+    UFO.draw(ufo)
 
     love.graphics.pop()
 
@@ -344,8 +513,10 @@ function Playing.draw()
     else
         scoreY = 8
     end
-    HUD.drawScore(score, fonts.timer, scoreY)
+    HUD.drawScore(score, fonts.timer, scoreY, scoreMultiplier > 1)
     HUD.drawHighScore(highScore, fonts.tiny, scoreY + fonts.timer:getHeight() + 4)
+    local multiplierY = scoreY + fonts.timer:getHeight() + fonts.tiny:getHeight() + 8
+    HUD.drawScoreMultiplier(scoreMultiplier, scoreMultiplierTimer, fonts.medium, multiplierY)
     FloatingScore.draw(fonts.floating)
 
     -- Kill feed
@@ -363,12 +534,21 @@ function Playing.draw()
     if Audio.isMuted then
         HUD.drawMuteIndicator(fonts.tiny)
     end
+
+    -- Transform flash overlay
+    if flashTimer > 0 then
+        local alpha = (flashTimer / 0.3) * 0.7
+        love.graphics.setColor(1, 1, 1, alpha)
+        love.graphics.rectangle("fill", 0, 0, Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT)
+        love.graphics.setColor(1, 1, 1, 1)
+    end
 end
 
 function Playing.triggerGameOver()
     gameOver = true
     asteroid = nil
     extraAsteroids = {}
+    ufo = nil
     canLaunch = false
 
     if not timeUp then

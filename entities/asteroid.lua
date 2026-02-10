@@ -357,7 +357,19 @@ function Asteroid.draw(asteroid, comboLevel, isMain)
 
         local isMaxCombo = gameMode ~= "normal" and (comboLevel + 1 >= #Settings.ASTEROID_APPEARANCE)
 
-        if isMaxCombo then
+        if asteroid.bonusActive then
+            -- Golden bonus trail
+            local alpha = 0.7 * (asteroid.bonusRatio or 1)
+            love.graphics.setColor(1, 0.843, 0, alpha)
+            local points = {}
+            for _, p in ipairs(asteroid.trail) do
+                table.insert(points, p.x)
+                table.insert(points, p.y)
+            end
+            if #points >= 4 then
+                love.graphics.line(points)
+            end
+        elseif isMaxCombo then
             -- Nyan Cat rainbow: bands perpendicular to trail, with wave
             local rainbow = {
                 {1, 0, 0},       -- red
