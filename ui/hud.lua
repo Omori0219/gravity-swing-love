@@ -2,25 +2,27 @@ local Settings = require("settings")
 
 local HUD = {}
 
-function HUD.drawScore(score, font)
+function HUD.drawScore(score, font, y)
+    y = y or 32
     love.graphics.setFont(font)
     love.graphics.setColor(Settings.COLORS.WHITE)
-    local text = "Score: " .. score
+    local text = tostring(score)
     local tw = font:getWidth(text)
-    love.graphics.print(text, (Settings.CANVAS_WIDTH - tw) / 2, 32)
+    love.graphics.print(text, (Settings.CANVAS_WIDTH - tw) / 2, y)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-function HUD.drawHighScore(highScore, font)
+function HUD.drawHighScore(highScore, font, y)
+    y = y or 10
     love.graphics.setFont(font)
     love.graphics.setColor(0.667, 0.667, 0.667, 1)
     local text = "High Score: " .. highScore
     local tw = font:getWidth(text)
-    love.graphics.print(text, (Settings.CANVAS_WIDTH - tw) / 2, 10)
+    love.graphics.print(text, (Settings.CANVAS_WIDTH - tw) / 2, y)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-function HUD.drawTimer(timeRemaining, fonts)
+function HUD.drawTimer(timeRemaining, font)
     local seconds = math.ceil(timeRemaining)
     local text = tostring(seconds)
 
@@ -34,9 +36,9 @@ function HUD.drawTimer(timeRemaining, fonts)
         love.graphics.setColor(1, 1, 1, 0.9)
     end
 
-    love.graphics.setFont(fonts.timer)
-    local tw = fonts.timer:getWidth(text)
-    love.graphics.print(text, (Settings.CANVAS_WIDTH - tw) / 2, 50)
+    love.graphics.setFont(font)
+    local tw = font:getWidth(text)
+    love.graphics.print(text, (Settings.CANVAS_WIDTH - tw) / 2, 8)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
@@ -62,16 +64,15 @@ function HUD.drawCombo(combo, font)
     if combo < 2 then return end
     love.graphics.setFont(font)
     local text = "x" .. combo
-    local tw = font:getWidth(text)
-    local x = Settings.CANVAS_WIDTH - tw - 16
-    local y = 36
+    local x = 280
+    local y = Settings.KILL_FEED_Y
 
     local Asteroid = require("entities.asteroid")
     local appearance = Asteroid.getAppearance(combo)
     if appearance.type == "solid" then
-        love.graphics.setColor(appearance.color[1], appearance.color[2], appearance.color[3], 1)
+        love.graphics.setColor(appearance.color[1], appearance.color[2], appearance.color[3], 0.7)
     else
-        love.graphics.setColor(appearance.colors[1][1], appearance.colors[1][2], appearance.colors[1][3], 1)
+        love.graphics.setColor(appearance.colors[1][1], appearance.colors[1][2], appearance.colors[1][3], 0.7)
     end
     love.graphics.print(text, x, y)
     love.graphics.setColor(1, 1, 1, 1)

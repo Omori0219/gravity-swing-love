@@ -331,20 +331,22 @@ function Playing.draw()
     love.graphics.pop()
 
     -- HUD (not affected by screen shake)
-    HUD.drawScore(score, fonts.medium)
-    HUD.drawHighScore(highScore, fonts.tiny)
+    local scoreY
+    if gameMode == "timed" then
+        HUD.drawTimer(timeRemaining, fonts.large)
+        scoreY = 8 + fonts.large:getHeight() + 4
+    else
+        scoreY = 8
+    end
+    HUD.drawScore(score, fonts.timer, scoreY)
+    HUD.drawHighScore(highScore, fonts.tiny, scoreY + fonts.timer:getHeight() + 4)
     FloatingScore.draw(fonts.floating)
 
     -- Kill feed
     HUD.drawKillFeed(currentChainKills, fonts.killFeed)
 
-    -- Combo counter
-    HUD.drawCombo(consecutiveHits, fonts.combo)
-
-    -- Timer display for timed mode
-    if gameMode == "timed" then
-        HUD.drawTimer(timeRemaining, fonts)
-    end
+    -- Combo counter (next to kill feed)
+    HUD.drawCombo(consecutiveHits, fonts.killFeed)
 
     -- Mute indicator
     if Audio.isMuted then
