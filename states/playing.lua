@@ -132,6 +132,26 @@ function Playing.update(dt)
         return
     end
 
+    -- Shy cat: repelled by enemy planets
+    if asteroid.shy then
+        local timeScale = dt * Settings.BASE_FPS * Settings.PHYSICS_TIME_SCALE
+        for _, enemy in ipairs(enemies) do
+            local dx = enemy.x - asteroid.x
+            local dy = enemy.y - asteroid.y
+            local distSq = dx * dx + dy * dy
+            local dist = math.sqrt(distSq)
+            if dist > 1 then
+                local force = (Settings.GRAVITY_CONSTANT * planet.mass * 0.2) / distSq
+                local fx = (dx / dist) * force
+                local fy = (dy / dist) * force
+                local maxF = Settings.MAX_GRAVITY_FORCE
+                if math.abs(fx) > maxF then fx = (fx > 0 and maxF or -maxF) end
+                if math.abs(fy) > maxF then fy = (fy > 0 and maxF or -maxF) end
+                asteroid.vx = asteroid.vx - fx * timeScale
+                asteroid.vy = asteroid.vy - fy * timeScale
+            end
+        end
+    end
     -- Physics
     Physics.applyGravity(asteroid, planet, dt)
     Asteroid.updateTrail(asteroid)
@@ -214,6 +234,26 @@ function Playing.update(dt)
                 table.remove(extraAsteroids, i)
             end
         else
+            -- Shy cat: repelled by enemy planets
+            if extra.shy then
+                local timeScale = dt * Settings.BASE_FPS * Settings.PHYSICS_TIME_SCALE
+                for _, enemy in ipairs(enemies) do
+                    local dx = enemy.x - extra.x
+                    local dy = enemy.y - extra.y
+                    local distSq = dx * dx + dy * dy
+                    local dist = math.sqrt(distSq)
+                    if dist > 1 then
+                        local force = (Settings.GRAVITY_CONSTANT * planet.mass * 0.2) / distSq
+                        local fx = (dx / dist) * force
+                        local fy = (dy / dist) * force
+                        local maxF = Settings.MAX_GRAVITY_FORCE
+                        if math.abs(fx) > maxF then fx = (fx > 0 and maxF or -maxF) end
+                        if math.abs(fy) > maxF then fy = (fy > 0 and maxF or -maxF) end
+                        extra.vx = extra.vx - fx * timeScale
+                        extra.vy = extra.vy - fy * timeScale
+                    end
+                end
+            end
             Physics.applyGravity(extra, planet, dt)
             Asteroid.updateTrail(extra)
 

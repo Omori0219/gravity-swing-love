@@ -332,6 +332,7 @@ end
 function switchToTitle()
     currentState = "title"
     love.mouse.setVisible(true)
+    Audio.setNyanMode(false)
     Audio.playBGM(true)
     Particles.clear()
     Title.enter(fonts, Ranking.getList())

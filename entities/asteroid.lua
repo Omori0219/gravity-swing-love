@@ -143,6 +143,7 @@ function Asteroid.new()
         radius = radius,
         trail = {},
         catName = catNames[math.random(#catNames)],
+        shy = catMode and math.random(10) == 1,
     }
 end
 
@@ -195,11 +196,12 @@ function Asteroid.draw(asteroid, comboLevel, isMain)
             local imgW, imgH = catImage:getDimensions()
             local drawScale = (asteroid.radius * 3) / imgH
             local sx = asteroid.vx >= 0 and drawScale or -drawScale
+            local sy = asteroid.shy and -drawScale or drawScale
             love.graphics.setColor(1, 1, 1, 1)
             love.graphics.draw(catImage,
                 asteroid.x, asteroid.y,
                 0,
-                sx, drawScale,
+                sx, sy,
                 imgW / 2, imgH / 2)
             -- Draw cat name above the cat
             if asteroid.catName and catNameFont then
@@ -208,7 +210,9 @@ function Asteroid.draw(asteroid, comboLevel, isMain)
                 local nameW = catNameFont:getWidth(asteroid.catName)
                 local nameX = asteroid.x - nameW / 2
                 local nameY = asteroid.y - (imgH / 2) * drawScale - 40
-                if isMain then
+                if asteroid.shy then
+                    love.graphics.setColor(1, 0.2, 0.2, 0.9)
+                elseif isMain then
                     love.graphics.setColor(1, 0.843, 0, 0.9)
                 else
                     love.graphics.setColor(1, 1, 1, 0.9)
