@@ -66,6 +66,7 @@ function love.load()
     fonts.medium = love.graphics.newFont(fontPath, 16)
     fonts.large = love.graphics.newFont(fontPath, 24)
     fonts.title = love.graphics.newFont(fontPath, 28)
+    fonts.combo = love.graphics.newFont(fontPath, 50)
     fonts.timer = love.graphics.newFont(fontPath, 48)
     fonts.floating = love.graphics.newFont(fontPath, Settings.FLOATING_SCORE_FONT_SIZE)
     fonts.killFeed = love.graphics.newFont(fontPath, Settings.KILL_FEED_FONT_SIZE)
@@ -87,10 +88,10 @@ function love.load()
 
     highScore = Ranking.getHighScore()
 
-    -- Restore cat mode
-    local savedCatMode = Save.readCatMode()
-    Asteroid.setCatMode(savedCatMode)
-    Stars.setCatMode(savedCatMode)
+    -- Restore game mode
+    local savedMode = Save.readGameMode()
+    Asteroid.setGameMode(savedMode)
+    Stars.setGameMode(savedMode)
 
     -- Enter title state
     Audio.playBGM(true)

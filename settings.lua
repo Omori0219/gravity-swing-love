@@ -147,7 +147,8 @@ Settings.UI_CANCEL_DURATION = 0.08
 Settings.HIGH_SCORE_FILE = "highscore.dat"
 Settings.MUTE_STATE_FILE = "mutestate.dat"
 Settings.ETERNAL_MODE_FILE = "eternal_mode.dat"
-Settings.CAT_MODE_FILE = "cat_mode.dat"
+Settings.CAT_MODE_FILE = "cat_mode.dat"   -- legacy
+Settings.GAME_MODE_FILE = "game_mode.dat"
 
 -- Debug
 Settings.DEBUG = false

@@ -52,15 +52,23 @@ function Save.readEternalMode()
     return false
 end
 
-function Save.writeCatMode(isEnabled)
-    love.filesystem.write(Settings.CAT_MODE_FILE, isEnabled and "1" or "0")
+function Save.writeGameMode(mode)
+    love.filesystem.write(Settings.GAME_MODE_FILE, mode)
 end
 
-function Save.readCatMode()
-    if love.filesystem.getInfo(Settings.CAT_MODE_FILE) then
-        return love.filesystem.read(Settings.CAT_MODE_FILE) == "1"
+function Save.readGameMode()
+    -- New format: "normal" / "cat" / "chaos"
+    if love.filesystem.getInfo(Settings.GAME_MODE_FILE) then
+        local data = love.filesystem.read(Settings.GAME_MODE_FILE)
+        if data == "cat" or data == "chaos" or data == "normal" then
+            return data
+        end
     end
-    return false
+    -- Legacy fallback: cat_mode.dat ("1"/"0")
+    if love.filesystem.getInfo(Settings.CAT_MODE_FILE) then
+        return love.filesystem.read(Settings.CAT_MODE_FILE) == "1" and "cat" or "normal"
+    end
+    return "normal"
 end
 
 function Save.writeDisplay(fullscreen, windowW, windowH)

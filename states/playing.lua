@@ -55,6 +55,7 @@ function Playing.enter(f, hs, mode)
 
     extraAsteroids = {}
     extraSpawnTimer = 0
+    Asteroid.clearWowCats()
 
     Particles.clear()
     FloatingScore.clear()
@@ -315,7 +316,6 @@ function Playing.draw()
     love.graphics.rectangle("fill", 0, 0, Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT)
 
     Stars.draw(planet.x, planet.y)
-    Asteroid.drawWowCat()
 
     Planet.draw(planet)
     Enemy.drawAll(enemies)
@@ -326,6 +326,7 @@ function Playing.draw()
         Asteroid.draw(extra, consecutiveHits, false)
     end
     Particles.draw()
+    Asteroid.drawWowCat()
 
     love.graphics.pop()
 
@@ -338,7 +339,7 @@ function Playing.draw()
     HUD.drawKillFeed(currentChainKills, fonts.killFeed)
 
     -- Combo counter
-    HUD.drawCombo(consecutiveHits, fonts.small)
+    HUD.drawCombo(consecutiveHits, fonts.combo)
 
     -- Timer display for timed mode
     if gameMode == "timed" then

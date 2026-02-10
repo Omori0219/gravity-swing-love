@@ -50,8 +50,8 @@ function Stars.generate()
     gravityShader = love.graphics.newShader(shaderCode)
 end
 
-function Stars.setCatMode(enabled)
-    bgImage = enabled and bgImageCat or bgImageNormal
+function Stars.setGameMode(mode)
+    bgImage = (mode ~= "normal") and bgImageCat or bgImageNormal
 end
 
 function Stars.draw(planetX, planetY)

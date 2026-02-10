@@ -16,7 +16,7 @@ local fullscreenBtn, eternalBtn, catModeBtn, backBtn
 local sizeButtons = {}
 local fonts
 local eternalMode = false
-local catMode = false
+local gameMode = "normal"  -- "normal", "cat", "chaos"
 local isFullscreen = false
 local fromPause = false
 
@@ -36,9 +36,9 @@ function Options.enter(f, isPaused)
     fonts = f
     fromPause = isPaused or false
     eternalMode = Save.readEternalMode()
-    catMode = Save.readCatMode()
-    Asteroid.setCatMode(catMode)
-    Stars.setCatMode(catMode)
+    gameMode = Save.readGameMode()
+    Asteroid.setGameMode(gameMode)
+    Stars.setGameMode(gameMode)
     isFullscreen = love.window.getFullscreen()
 
     -- Detect current window size
@@ -63,7 +63,7 @@ function Options.enter(f, isPaused)
     selectedSizeIndex = currentSizeIndex
     Options._makeSizeButtons(410)
     eternalBtn = Options._makeEternalBtn(cx, 480, bw)
-    catModeBtn = Options._makeCatModeBtn(cx, 550, bw)
+    catModeBtn = Options._makeGameModeBtn(cx, 550, bw)
 
     local backW = 180
     backBtn = Button.new("Back", Settings.CANVAS_WIDTH / 2 - backW / 2, 630, backW, 40, Settings.COLORS.GRAY, fonts.small)
@@ -116,14 +116,14 @@ function Options._makeEternalBtn(x, y, w)
     return btn
 end
 
-function Options._makeCatModeBtn(x, y, w)
-    local btn
-    if catMode then
-        btn = Button.new("Cat Mode: ON", x, y, w, 40, {0.9, 0.4, 0.6}, fonts.small)
+function Options._makeGameModeBtn(x, y, w)
+    if gameMode == "chaos" then
+        return Button.new("Mode: Chaos", x, y, w, 40, {0.9, 0.2, 0.2}, fonts.small)
+    elseif gameMode == "cat" then
+        return Button.new("Mode: Cat", x, y, w, 40, {0.9, 0.4, 0.6}, fonts.small)
     else
-        btn = Button.new("Cat Mode: OFF", x, y, w, 40, {0.4, 0.4, 0.4}, fonts.small)
+        return Button.new("Mode: Normal", x, y, w, 40, {0.4, 0.4, 0.4}, fonts.small)
     end
-    return btn
 end
 
 function Options._updateSelection()
@@ -237,7 +237,7 @@ function Options.mousepressed(x, y, button)
 
     if button == 1 and catModeBtn:isClicked(x, y) then
         Audio.playConfirm()
-        Options._toggleCatMode()
+        Options._cycleGameMode()
     end
 
     if button == 1 and backBtn:isClicked(x, y) then
@@ -276,14 +276,20 @@ function Options._toggleEternal()
     Options._updateSelection()
 end
 
-function Options._toggleCatMode()
-    catMode = not catMode
-    Save.writeCatMode(catMode)
-    Asteroid.setCatMode(catMode)
-    Stars.setCatMode(catMode)
+function Options._cycleGameMode()
+    if gameMode == "normal" then
+        gameMode = "cat"
+    elseif gameMode == "cat" then
+        gameMode = "chaos"
+    else
+        gameMode = "normal"
+    end
+    Save.writeGameMode(gameMode)
+    Asteroid.setGameMode(gameMode)
+    Stars.setGameMode(gameMode)
     local bw = 300
     local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
-    catModeBtn = Options._makeCatModeBtn(cx, 550, bw)
+    catModeBtn = Options._makeGameModeBtn(cx, 550, bw)
     Options._updateSelection()
 end
 
@@ -344,7 +350,7 @@ function Options.keypressed(key)
         elseif row == "eternal" and not fromPause then
             Options._toggleEternal()
         elseif row == "catmode" then
-            Options._toggleCatMode()
+            Options._cycleGameMode()
         elseif row == "back" then
             Audio.saveVolumes()
             return "back"

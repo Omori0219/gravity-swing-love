@@ -3,11 +3,12 @@ local Settings = require("settings")
 local Asteroid = {}
 
 local lastEdge = 0
-local catMode = false
+local gameMode = "normal"  -- "normal", "cat", "chaos"
 local catImage = nil
 local catNameFont = nil
 local wowCatImage = nil
-local wowCat = { active = false, timer = 0, phase = "idle" }
+local wowCats = {}       -- persistent wow cats (chaos mode)
+local wowCatTemp = nil   -- temporary wow cat (cat mode)
 
 -- Random cat names for Cat Mode
 local catNames = {
@@ -19,15 +20,19 @@ local catNames = {
     "Biscuit", "Nugget", "Pickles", "Waffles", "Bean",
 }
 
-function Asteroid.setCatMode(enabled)
-    catMode = enabled
-    if enabled and not catImage then
+function Asteroid.setGameMode(mode)
+    gameMode = mode
+    if mode ~= "normal" and not catImage then
         Asteroid._loadCatImage()
     end
 end
 
 function Asteroid.isCatMode()
-    return catMode
+    return gameMode == "cat" or gameMode == "chaos"
+end
+
+function Asteroid.isChaosMode()
+    return gameMode == "chaos"
 end
 
 function Asteroid._loadCatImage()
@@ -38,59 +43,130 @@ function Asteroid._loadCatImage()
     catNameFont = love.graphics.newFont("assets/fonts/PressStart2P.ttf", 32)
 end
 
--- Wow cat animation: slides up from bottom-left when nyan cat goes out of bounds
+-- Wow cat system
+-- Cat mode: temporary (slide in, hold, slide out)
+-- Chaos mode: persistent (accumulate on screen as penalty)
 local WOW_SLIDE_IN = 0.3
 local WOW_HOLD = 0.6
 local WOW_SLIDE_OUT = 0.3
 local WOW_TOTAL = WOW_SLIDE_IN + WOW_HOLD + WOW_SLIDE_OUT
+local CHAOS_SLIDE_IN = 0.5
+
+local function _chaosWowPosition()
+    local W = Settings.CANVAS_WIDTH
+    local H = Settings.CANVAS_HEIGHT
+    local imgW, imgH = wowCatImage:getDimensions()
+    local drawH = H * 0.4
+    local drawScale = drawH / imgH
+    local drawW = imgW * drawScale
+
+    local edge = math.random(1, 4)
+    local finalCX, finalCY, startCX, startCY, rotation
+
+    if edge == 1 then      -- top
+        local rx = drawW / 2 + math.random() * (W - drawW)
+        finalCX, finalCY = rx, drawH / 2
+        startCX, startCY = rx, -drawH / 2
+        rotation = math.pi
+    elseif edge == 2 then  -- bottom
+        local rx = drawW / 2 + math.random() * (W - drawW)
+        finalCX, finalCY = rx, H - drawH / 2
+        startCX, startCY = rx, H + drawH / 2
+        rotation = 0
+    elseif edge == 3 then  -- left
+        local ry = drawW / 2 + math.random() * (H - drawW)
+        finalCX, finalCY = drawH / 2, ry
+        startCX, startCY = -drawH / 2, ry
+        rotation = math.pi / 2
+    else                    -- right
+        local ry = drawW / 2 + math.random() * (H - drawW)
+        finalCX, finalCY = W - drawH / 2, ry
+        startCX, startCY = W + drawH / 2, ry
+        rotation = -math.pi / 2
+    end
+
+    return {
+        timer = 0,
+        startCX = startCX, startCY = startCY,
+        finalCX = finalCX, finalCY = finalCY,
+        drawScale = drawScale, rotation = rotation,
+    }
+end
 
 function Asteroid.triggerWowCat()
-    if catMode and wowCatImage then
-        wowCat.active = true
-        wowCat.timer = 0
+    if gameMode == "normal" or not wowCatImage then return end
+
+    if gameMode == "chaos" then
+        table.insert(wowCats, _chaosWowPosition())
+    else
+        -- Cat mode: temporary display
+        wowCatTemp = { active = true, timer = 0 }
     end
 end
 
 function Asteroid.updateWowCat(dt)
-    if not wowCat.active then return end
-    wowCat.timer = wowCat.timer + dt
-    if wowCat.timer >= WOW_TOTAL then
-        wowCat.active = false
-        wowCat.timer = 0
+    -- Chaos: animate slide-in for persistent cats
+    for _, wc in ipairs(wowCats) do
+        if wc.timer < CHAOS_SLIDE_IN then
+            wc.timer = math.min(wc.timer + dt, CHAOS_SLIDE_IN)
+        end
+    end
+    -- Cat: temporary animation
+    if wowCatTemp and wowCatTemp.active then
+        wowCatTemp.timer = wowCatTemp.timer + dt
+        if wowCatTemp.timer >= WOW_TOTAL then
+            wowCatTemp.active = false
+        end
     end
 end
 
 function Asteroid.drawWowCat()
-    if not wowCat.active or not wowCatImage then return end
-
+    if not wowCatImage then return end
     local imgW, imgH = wowCatImage:getDimensions()
-    local drawH = Settings.CANVAS_HEIGHT * 0.45
-    local drawScale = drawH / imgH
-    local drawW = imgW * drawScale
 
-    -- Calculate vertical offset based on animation phase
-    local t = wowCat.timer
-    local offsetY
-    if t < WOW_SLIDE_IN then
-        -- Slide in (from below)
-        local progress = t / WOW_SLIDE_IN
-        progress = 1 - (1 - progress) * (1 - progress)  -- ease-out
-        offsetY = drawH * (1 - progress)
-    elseif t < WOW_SLIDE_IN + WOW_HOLD then
-        -- Hold
-        offsetY = 0
-    else
-        -- Slide out (back down)
-        local progress = (t - WOW_SLIDE_IN - WOW_HOLD) / WOW_SLIDE_OUT
-        progress = progress * progress  -- ease-in
-        offsetY = drawH * progress
+    -- Chaos mode: persistent cats from edges
+    for _, wc in ipairs(wowCats) do
+        local progress = wc.timer / CHAOS_SLIDE_IN
+        progress = 1 - (1 - progress) * (1 - progress)
+
+        local cx = wc.startCX + (wc.finalCX - wc.startCX) * progress
+        local cy = wc.startCY + (wc.finalCY - wc.startCY) * progress
+
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.draw(wowCatImage, cx, cy,
+            wc.rotation, wc.drawScale, wc.drawScale,
+            imgW / 2, imgH / 2)
     end
 
-    local x = 0
-    local y = Settings.CANVAS_HEIGHT - drawH + offsetY
+    -- Cat mode: temporary bottom-left slide
+    if wowCatTemp and wowCatTemp.active then
+        local drawH = Settings.CANVAS_HEIGHT * 0.45
+        local drawScale = drawH / imgH
 
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(wowCatImage, x, y, 0, drawScale, drawScale)
+        local t = wowCatTemp.timer
+        local offsetY
+        if t < WOW_SLIDE_IN then
+            local p = t / WOW_SLIDE_IN
+            p = 1 - (1 - p) * (1 - p)
+            offsetY = drawH * (1 - p)
+        elseif t < WOW_SLIDE_IN + WOW_HOLD then
+            offsetY = 0
+        else
+            local p = (t - WOW_SLIDE_IN - WOW_HOLD) / WOW_SLIDE_OUT
+            p = p * p
+            offsetY = drawH * p
+        end
+
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.draw(wowCatImage, 0,
+            Settings.CANVAS_HEIGHT - drawH + offsetY,
+            0, drawScale, drawScale)
+    end
+end
+
+function Asteroid.clearWowCats()
+    wowCats = {}
+    wowCatTemp = nil
 end
 
 function Asteroid.new()
@@ -133,7 +209,7 @@ function Asteroid.new()
     local speed = Settings.ASTEROID_INITIAL_VX * speedMultiplier
 
     local radius = Settings.ASTEROID_RADIUS
-    if catMode then radius = radius * 3 end
+    if gameMode ~= "normal" then radius = radius * 3 end
 
     return {
         x = x,
@@ -153,7 +229,7 @@ function Asteroid.updateTrail(asteroid)
     else
         table.insert(asteroid.trail, {x = asteroid.x, y = asteroid.y})
         local maxLen = Settings.ASTEROID_TRAIL_LENGTH
-        if catMode then maxLen = math.floor(maxLen * 1.5) end
+        if gameMode ~= "normal" then maxLen = math.floor(maxLen * 1.5) end
         if #asteroid.trail > maxLen then
             table.remove(asteroid.trail, 1)
         end
@@ -191,7 +267,7 @@ function Asteroid.draw(asteroid, comboLevel, isMain)
     end
 
     if not asteroid.dying then
-        if catMode and catImage then
+        if gameMode ~= "normal" and catImage then
             -- Cat mode: draw nyan cat, flip horizontally based on direction
             local imgW, imgH = catImage:getDimensions()
             local drawScale = (asteroid.radius * 3) / imgH
@@ -246,10 +322,10 @@ function Asteroid.draw(asteroid, comboLevel, isMain)
     -- Trail
     if #asteroid.trail > 1 then
         local lineW = asteroid.radius * 0.56
-        if catMode then lineW = lineW * 3 end
+        if gameMode ~= "normal" then lineW = lineW * 3 end
         love.graphics.setLineWidth(lineW)
 
-        local isMaxCombo = catMode and (comboLevel + 1 >= #Settings.ASTEROID_APPEARANCE)
+        local isMaxCombo = gameMode ~= "normal" and (comboLevel + 1 >= #Settings.ASTEROID_APPEARANCE)
 
         if isMaxCombo then
             -- Nyan Cat rainbow: bands perpendicular to trail, with wave
