@@ -11,7 +11,7 @@ function Physics.applyGravity(asteroid, planet, dt)
 
     if dist > 1 then
         local weight = asteroid.weightFactor or 1
-        local force = (Settings.GRAVITY_CONSTANT * planet.mass) / distSq / weight
+        local force = (Settings.GRAVITY_CONSTANT * planet.mass) / (dist ^ Settings.GRAVITY_FALLOFF) / weight
         local fx = (dx / dist) * force
         local fy = (dy / dist) * force
 

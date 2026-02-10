@@ -92,6 +92,7 @@ Settings.KILL_FEED_Y = 10
 
 -- Physics
 Settings.GRAVITY_CONSTANT = 0.1
+Settings.GRAVITY_FALLOFF = 1.85
 Settings.MAX_GRAVITY_FORCE = BASE_MAX_GRAVITY_FORCE * scale
 Settings.BASE_FPS = 60
 Settings.PHYSICS_TIME_SCALE = 1.0
