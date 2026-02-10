@@ -143,7 +143,7 @@ function Asteroid.new()
         radius = radius,
         trail = {},
         catName = catNames[math.random(#catNames)],
-        shy = catMode and math.random(10) == 1,
+        shy = false,
     }
 end
 
