@@ -177,7 +177,7 @@ function Asteroid.getAppearance(comboLevel)
     return Settings.ASTEROID_APPEARANCE[idx]
 end
 
-function Asteroid.draw(asteroid, comboLevel)
+function Asteroid.draw(asteroid, comboLevel, isMain)
     if not asteroid then return end
 
     local appearance = Asteroid.getAppearance(comboLevel)
@@ -208,7 +208,11 @@ function Asteroid.draw(asteroid, comboLevel)
                 local nameW = catNameFont:getWidth(asteroid.catName)
                 local nameX = asteroid.x - nameW / 2
                 local nameY = asteroid.y - (imgH / 2) * drawScale - 40
-                love.graphics.setColor(1, 1, 1, 0.9)
+                if isMain then
+                    love.graphics.setColor(1, 0.843, 0, 0.9)
+                else
+                    love.graphics.setColor(1, 1, 1, 0.9)
+                end
                 love.graphics.print(asteroid.catName, nameX, nameY)
                 love.graphics.setFont(prevFont)
             end
