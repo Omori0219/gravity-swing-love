@@ -184,6 +184,12 @@ function Playing.update(dt)
             Particles.spawn(ex, ey, "hit")
             Audio.playHit()
 
+            -- Cat grows bigger and heavier with each kill (chaos only)
+            if Asteroid.isChaosMode() then
+                asteroid.weightFactor = asteroid.weightFactor + 0.15
+                asteroid.radius = asteroid.baseRadius * asteroid.weightFactor
+            end
+
             -- Switch to nyan BGM at max combo in cat mode
             if Asteroid.isCatMode() and consecutiveHits + 1 >= #Settings.ASTEROID_APPEARANCE then
                 Audio.setNyanMode(true)

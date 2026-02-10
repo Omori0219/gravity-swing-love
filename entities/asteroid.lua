@@ -244,6 +244,8 @@ function Asteroid.new()
         vx = math.cos(angle) * speed,
         vy = math.sin(angle) * speed,
         radius = radius,
+        baseRadius = radius,
+        weightFactor = 1,
         trail = {},
         catName = catNames[math.random(#catNames)],
         catTrait = catTraits[math.random(#catTraits)],

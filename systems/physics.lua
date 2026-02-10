@@ -10,7 +10,8 @@ function Physics.applyGravity(asteroid, planet, dt)
     local timeScale = dt * Settings.BASE_FPS * Settings.PHYSICS_TIME_SCALE
 
     if dist > 1 then
-        local force = (Settings.GRAVITY_CONSTANT * planet.mass) / distSq
+        local weight = asteroid.weightFactor or 1
+        local force = (Settings.GRAVITY_CONSTANT * planet.mass) / distSq / weight
         local fx = (dx / dist) * force
         local fy = (dy / dist) * force
 
