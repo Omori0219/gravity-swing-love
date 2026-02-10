@@ -71,6 +71,18 @@ function Save.readGameMode()
     return "normal"
 end
 
+function Save.writeCatName(name)
+    love.filesystem.write(Settings.CAT_NAME_FILE, name or "")
+end
+
+function Save.readCatName()
+    if love.filesystem.getInfo(Settings.CAT_NAME_FILE) then
+        local data = love.filesystem.read(Settings.CAT_NAME_FILE)
+        if data and data ~= "" then return data end
+    end
+    return nil
+end
+
 function Save.writeDisplay(fullscreen, windowW, windowH)
     love.filesystem.write("display.dat", string.format("%s,%d,%d",
         fullscreen and "1" or "0", windowW, windowH))

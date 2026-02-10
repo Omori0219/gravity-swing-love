@@ -12,13 +12,17 @@ local Asteroid = require("entities.asteroid")
 local Options = {}
 
 local bgmSlider, sfxSlider
-local fullscreenBtn, eternalBtn, catModeBtn, backBtn
+local fullscreenBtn, eternalBtn, catModeBtn, catNameBtn, backBtn
 local sizeButtons = {}
 local fonts
 local eternalMode = false
 local gameMode = "normal"  -- "normal", "cat", "chaos"
 local isFullscreen = false
 local fromPause = false
+local catNameIndex = 1  -- index into catNames list
+local editingCatName = false
+local editBuffer = ""
+local CAT_NAME_MAX_LEN = 12
 
 local WINDOW_SIZES = {
     { w = 800,  h = 600,  label = "800x600" },
@@ -28,8 +32,8 @@ local WINDOW_SIZES = {
 local currentSizeIndex = 2  -- default: 1200x900
 local selectedSizeIndex = 2 -- cursor position (may differ from currentSizeIndex)
 
--- Navigation: rows are "fullscreen", "size", "eternal", "catmode", "back"
-local NAV_ROWS = { "fullscreen", "size", "eternal", "catmode", "back" }
+-- Navigation: rows are "fullscreen", "size", "eternal", "catmode", "catname", "back"
+local NAV_ROWS = { "fullscreen", "size", "eternal", "catmode", "catname", "back" }
 local selectedRow = 1
 
 function Options.enter(f, isPaused)
@@ -65,8 +69,19 @@ function Options.enter(f, isPaused)
     eternalBtn = Options._makeEternalBtn(cx, 480, bw)
     catModeBtn = Options._makeGameModeBtn(cx, 550, bw)
 
+    -- Restore chosen cat name index
+    local names = Asteroid.getCatNames()
+    local saved = Asteroid.getChosenCatName()
+    catNameIndex = 1
+    if saved then
+        for i, n in ipairs(names) do
+            if n == saved then catNameIndex = i; break end
+        end
+    end
+    catNameBtn = Options._makeCatNameBtn(cx, 620, bw)
+
     local backW = 180
-    backBtn = Button.new("Back", Settings.CANVAS_WIDTH / 2 - backW / 2, 630, backW, 40, Settings.COLORS.GRAY, fonts.small)
+    backBtn = Button.new("Back", Settings.CANVAS_WIDTH / 2 - backW / 2, 700, backW, 40, Settings.COLORS.GRAY, fonts.small)
 
     selectedRow = 1
     Options._updateSelection()
@@ -126,12 +141,36 @@ function Options._makeGameModeBtn(x, y, w)
     end
 end
 
+function Options._makeCatNameBtn(x, y, w)
+    local label
+    if editingCatName then
+        local cursor = math.floor(love.timer.getTime() * 2) % 2 == 0 and "_" or ""
+        label = "Cat: " .. editBuffer .. cursor
+    else
+        local currentName = Asteroid.getChosenCatName()
+        if currentName then
+            label = "Cat: " .. currentName
+        else
+            local names = Asteroid.getCatNames()
+            label = "Cat: " .. (names[catNameIndex] or "Mochi")
+        end
+    end
+    if gameMode == "normal" then
+        return Button.new(label, x, y, w, 40, {0.25, 0.25, 0.25}, fonts.small)
+    elseif editingCatName then
+        return Button.new(label, x, y, w, 40, {0.7, 0.4, 0.8}, fonts.small)
+    else
+        return Button.new(label, x, y, w, 40, {0.5, 0.3, 0.6}, fonts.small)
+    end
+end
+
 function Options._updateSelection()
     -- Clear all
     if fullscreenBtn then fullscreenBtn.selected = false end
     for _, btn in ipairs(sizeButtons) do btn.selected = false end
     if eternalBtn then eternalBtn.selected = false end
     if catModeBtn then catModeBtn.selected = false end
+    if catNameBtn then catNameBtn.selected = false end
     if backBtn then backBtn.selected = false end
 
     local row = NAV_ROWS[selectedRow]
@@ -145,6 +184,8 @@ function Options._updateSelection()
         if eternalBtn then eternalBtn.selected = true end
     elseif row == "catmode" then
         if catModeBtn then catModeBtn.selected = true end
+    elseif row == "catname" then
+        if catNameBtn then catNameBtn.selected = true end
     elseif row == "back" then
         if backBtn then backBtn.selected = true end
     end
@@ -160,11 +201,20 @@ function Options.update(dt)
     end
     eternalBtn:updateHover(mx, my)
     catModeBtn:updateHover(mx, my)
+    catNameBtn:updateHover(mx, my)
     backBtn:updateHover(mx, my)
 
     -- Apply volume changes in real time
     Audio.setBGMVolume(bgmSlider.value)
     Audio.setSFXVolume(sfxSlider.value)
+
+    -- Refresh cat name button for blinking cursor
+    if editingCatName then
+        local bw = 300
+        local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
+        catNameBtn = Options._makeCatNameBtn(cx, 620, bw)
+        Options._updateSelection()
+    end
 end
 
 function Options.draw()
@@ -205,6 +255,9 @@ function Options.draw()
     -- Cat mode toggle
     catModeBtn:draw()
 
+    -- Cat name selector
+    catNameBtn:draw()
+
     -- Back button
     backBtn:draw()
 
@@ -238,6 +291,16 @@ function Options.mousepressed(x, y, button)
     if button == 1 and catModeBtn:isClicked(x, y) then
         Audio.playConfirm()
         Options._cycleGameMode()
+    end
+
+    if button == 1 and gameMode ~= "normal" and catNameBtn:isClicked(x, y) then
+        if editingCatName then
+            Audio.playConfirm()
+            Options._confirmEditCatName()
+        else
+            Audio.playConfirm()
+            Options._startEditCatName()
+        end
     end
 
     if button == 1 and backBtn:isClicked(x, y) then
@@ -290,7 +353,69 @@ function Options._cycleGameMode()
     local bw = 300
     local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
     catModeBtn = Options._makeGameModeBtn(cx, 550, bw)
+    catNameBtn = Options._makeCatNameBtn(cx, 620, bw)
     Options._updateSelection()
+end
+
+function Options._cycleCatName(dir)
+    if editingCatName then return end
+    local names = Asteroid.getCatNames()
+    catNameIndex = catNameIndex + dir
+    if catNameIndex > #names then catNameIndex = 1 end
+    if catNameIndex < 1 then catNameIndex = #names end
+    local name = names[catNameIndex]
+    Asteroid.setChosenCatName(name)
+    Save.writeCatName(name)
+    local bw = 300
+    local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
+    catNameBtn = Options._makeCatNameBtn(cx, 620, bw)
+    Options._updateSelection()
+end
+
+function Options._startEditCatName()
+    editingCatName = true
+    editBuffer = Asteroid.getChosenCatName() or ""
+    love.keyboard.setTextInput(true)
+    local bw = 300
+    local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
+    catNameBtn = Options._makeCatNameBtn(cx, 620, bw)
+    Options._updateSelection()
+end
+
+function Options._confirmEditCatName()
+    editingCatName = false
+    love.keyboard.setTextInput(false)
+    local name = editBuffer
+    if name == "" then
+        name = Asteroid.getCatNames()[catNameIndex]
+    end
+    Asteroid.setChosenCatName(name)
+    Save.writeCatName(name)
+    -- Update catNameIndex if name matches a preset
+    local names = Asteroid.getCatNames()
+    for i, n in ipairs(names) do
+        if n == name then catNameIndex = i; break end
+    end
+    local bw = 300
+    local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
+    catNameBtn = Options._makeCatNameBtn(cx, 620, bw)
+    Options._updateSelection()
+end
+
+function Options._cancelEditCatName()
+    editingCatName = false
+    love.keyboard.setTextInput(false)
+    local bw = 300
+    local cx = Settings.CANVAS_WIDTH / 2 - bw / 2
+    catNameBtn = Options._makeCatNameBtn(cx, 620, bw)
+    Options._updateSelection()
+end
+
+function Options.textinput(text)
+    if not editingCatName then return end
+    if #editBuffer < CAT_NAME_MAX_LEN then
+        editBuffer = editBuffer .. text
+    end
 end
 
 function Options._saveDisplay()
@@ -309,6 +434,25 @@ function Options.mousereleased(x, y, button)
 end
 
 function Options.keypressed(key)
+    -- Text editing mode: intercept keys
+    if editingCatName then
+        if key == "backspace" then
+            if #editBuffer > 0 then
+                editBuffer = editBuffer:sub(1, -2)
+            end
+            return nil
+        elseif key == "return" or key == "kpenter" then
+            Audio.playConfirm()
+            Options._confirmEditCatName()
+            return nil
+        elseif key == "escape" then
+            Audio.playCancel()
+            Options._cancelEditCatName()
+            return nil
+        end
+        return nil
+    end
+
     if KeyMap.isUp(key) then
         selectedRow = selectedRow - 1
         if selectedRow < 1 then selectedRow = #NAV_ROWS end
@@ -341,6 +485,19 @@ function Options.keypressed(key)
         end
     end
 
+    -- Left/right for cat name row
+    if row == "catname" and gameMode ~= "normal" then
+        if KeyMap.isLeft(key) then
+            Options._cycleCatName(-1)
+            Audio.playCursor()
+            return nil
+        elseif KeyMap.isRight(key) then
+            Options._cycleCatName(1)
+            Audio.playCursor()
+            return nil
+        end
+    end
+
     if KeyMap.isConfirm(key) then
         Audio.playConfirm()
         if row == "fullscreen" then
@@ -351,6 +508,8 @@ function Options.keypressed(key)
             Options._toggleEternal()
         elseif row == "catmode" then
             Options._cycleGameMode()
+        elseif row == "catname" and gameMode ~= "normal" then
+            Options._startEditCatName()
         elseif row == "back" then
             Audio.saveVolumes()
             return "back"

@@ -264,6 +264,9 @@ function Playing.update(dt)
     -- Auto-launch
     if not asteroid and canLaunch then
         asteroid = Asteroid.new()
+        if Asteroid.getChosenCatName() then
+            asteroid.catName = Asteroid.getChosenCatName()
+        end
         local range = Settings.ASTEROID_INITIAL_COMBO_MAX - Settings.ASTEROID_INITIAL_COMBO_MIN
         consecutiveHits = Settings.ASTEROID_INITIAL_COMBO_MIN + math.floor(math.random() ^ Settings.ASTEROID_INITIAL_COMBO_BIAS * (range + 1))
         -- New asteroid: combo resets, switch back to normal BGM

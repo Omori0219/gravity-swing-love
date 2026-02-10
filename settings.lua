@@ -156,6 +156,7 @@ Settings.MUTE_STATE_FILE = "mutestate.dat"
 Settings.ETERNAL_MODE_FILE = "eternal_mode.dat"
 Settings.CAT_MODE_FILE = "cat_mode.dat"   -- legacy
 Settings.GAME_MODE_FILE = "game_mode.dat"
+Settings.CAT_NAME_FILE = "cat_name.dat"
 
 -- Debug
 Settings.DEBUG = false

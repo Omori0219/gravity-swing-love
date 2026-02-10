@@ -95,6 +95,12 @@ function love.load()
     Asteroid.setGameMode(savedMode)
     Stars.setGameMode(savedMode)
 
+    -- Restore chosen cat name
+    local savedCatName = Save.readCatName()
+    if savedCatName then
+        Asteroid.setChosenCatName(savedCatName)
+    end
+
     -- Enter title state
     Audio.playBGM(true)
     Title.enter(fonts, Ranking.getList())
@@ -253,6 +259,8 @@ end
 function love.textinput(text)
     if currentState == "gameover" then
         GameOver.textinput(text)
+    elseif currentState == "options" then
+        Options.textinput(text)
     end
 end
 

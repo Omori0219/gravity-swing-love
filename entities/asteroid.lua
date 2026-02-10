@@ -9,6 +9,7 @@ local catNameFont = nil
 local wowCatImage = nil
 local wowCats = {}       -- persistent wow cats (chaos mode)
 local wowCatTemp = nil   -- temporary wow cat (cat mode)
+local chosenCatName = nil -- player-chosen cat name (nil = random)
 
 -- Random cat names for Cat Mode
 local catNames = {
@@ -189,6 +190,18 @@ end
 
 function Asteroid.getCatImage()
     return catImage
+end
+
+function Asteroid.getCatNames()
+    return catNames
+end
+
+function Asteroid.setChosenCatName(name)
+    chosenCatName = name
+end
+
+function Asteroid.getChosenCatName()
+    return chosenCatName
 end
 
 function Asteroid.clearWowCats()
